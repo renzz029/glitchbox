@@ -2,280 +2,236 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LED-SNAKE 029 | GlitchBox Session</title>
+    <title>GLITCHOPS | 1v1 Fight</title>
     <style>
-        :root {
-            --neon-purple: #bc13fe;
-            --neon-cyan: #00f3ff;
-            --neon-gold: #f1c40f;
-            --bg-obsidian: #050505;
-        }
-
-        body {
-            background-color: var(--bg-obsidian);
-            color: #fff;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            /* Per defecte el traiem, el controlarem per JS */
-            cursor: none;
-        }
-
-        .ui-header { 
-            margin-bottom: 20px; 
-            display: flex;
-            gap: 50px;
-            align-items: baseline;
-            letter-spacing: 2px;
-        }
-        .score-display { 
-            font-size: 32px; 
-            font-weight: 800; 
-            text-shadow: 0 0 15px var(--neon-purple); 
-        }
-
-        canvas {
-            border: 2px solid var(--neon-purple);
-            background-color: #020205;
-            box-shadow: 0 0 40px rgba(188, 19, 254, 0.3);
-        }
-
-        #pauseMenu {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(5, 5, 5, 0.98);
-            padding: 50px;
-            border: 1px solid var(--neon-purple);
-            text-align: center;
-            box-shadow: 0 0 100px rgba(188, 19, 254, 0.5);
-            z-index: 10;
-            border-radius: 4px;
-            min-width: 320px;
-            /* Crucial: punter visible al menú */
-            cursor: default;
-        }
-
-        #countdown {
-            display: none;
-            position: absolute;
-            font-size: 150px;
-            font-weight: 900;
-            color: var(--neon-gold);
-            text-shadow: 0 0 30px var(--neon-gold);
-            z-index: 5;
-            pointer-events: none;
-        }
-
-        .menu-btns { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        body { margin: 0; overflow: hidden; background: #eee; font-family: 'Arial Black', sans-serif; }
+        #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+        #stats { position: absolute; top: 20px; left: 20px; color: #000; background: rgba(255,255,255,0.8); padding: 10px; border: 2px solid #000; }
+        #ammo-display { position: absolute; bottom: 30px; right: 40px; color: #f00; font-size: 50px; text-shadow: 2px 2px #000; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 15px; height: 15px; transform: translate(-50%, -50%); border: 2px solid red; border-radius: 50%; }
+        #respawn-timer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 40px; text-align: center; display: none; background: rgba(0,0,0,0.8); padding: 20px; z-index: 200; width: 100%; }
         
-        button {
-            background: transparent;
-            border: 1px solid var(--neon-purple);
-            color: var(--neon-purple);
-            padding: 15px 40px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            letter-spacing: 3px;
-            transition: 0.3s;
-            text-transform: uppercase;
-        }
+        #pause-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 300; }
+        #pause-menu h2 { color: #fff; font-size: 50px; margin-bottom: 20px; }
 
-        button:hover {
-            background: var(--neon-purple);
-            color: white;
-            box-shadow: 0 0 30px var(--neon-purple);
-        }
-
-        .btn-exit { border-color: var(--neon-cyan); color: var(--neon-cyan); }
-        .btn-exit:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 30px var(--neon-cyan); }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; z-index: 100; text-align: center; }
+        #my-id { font-weight: bold; color: #f00; font-size: 28px; margin: 20px; padding: 15px; border: 3px dashed #000; background: #f9f9f9; }
+        input { padding: 15px; font-size: 18px; text-align: center; border: 2px solid #000; width: 350px; margin: 10px; }
+        button { background: #000; color: #fff; border: none; padding: 15px 40px; font-size: 18px; cursor: pointer; margin: 10px; }
+        button:hover { background: #f00; }
     </style>
 </head>
 <body>
 
-    <div class="ui-header">
-        <div class="score-display">SCORE: <span id="scoreVal" style="color:var(--neon-gold)">0</span></div>
-        <div style="color: rgba(255,255,255,0.3); font-size: 12px;">[ESC] PAUSE | [SHIFT] TURBO</div>
-    </div>
-    
-    <div id="countdown">3</div>
-
-    <div id="pauseMenu">
-        <h1 style="margin:0; font-size: 50px; letter-spacing: 5px;">PAUSED</h1>
-        <div style="margin: 20px 0; font-size: 20px; color: var(--neon-gold); font-weight: bold;">
-            CURRENT SCORE: <span id="pauseScore">0</span>
-        </div>
-        <div class="menu-btns">
-            <button onclick="resumeGame()">RESUME SESSION</button>
-            <button class="btn-exit" onclick="window.location.href='index.html'">RETURN TO HUB</button>
-        </div>
+    <div id="lobby" class="overlay">
+        <h1 style="font-size: 45px;">1v1 FIGHT</h1>
+        <p>SEND YOUR ID TO YOUR FRIENDS:</p>
+        <div id="my-id">GENERATING...</div>
+        <p>OR PASTE YOUR FRIEND'S ID:</p>
+        <input type="text" id="join-id" placeholder="PASTE ID HERE">
+        <br>
+        <button onclick="connectToFriend()">CONNECT</button>
+        <button id="start-btn" style="display:none; background: #f00;" onclick="startGame()">START MATCH</button>
     </div>
 
-    <canvas id="jocCanvas" width="600" height="400"></canvas>
+    <div id="pause-menu">
+        <h2>PAUSED</h2>
+        <button onclick="resumeGame()">RESUME</button>
+        <button onclick="exitToMenu()" style="background: #555;">EXIT TO MENU</button>
+    </div>
 
-    <script>
-        const canvas = document.getElementById("jocCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("scoreVal");
-        const pauseScoreElement = document.getElementById("pauseScore");
-        const pauseMenu = document.getElementById("pauseMenu");
-        const countdownElement = document.getElementById("countdown");
+    <div id="respawn-timer">YOU DIED!<br>RESPAWNING IN <span id="seconds">10</span>s</div>
 
-        let score = 0;
-        let baseSpeed = 3; 
-        let currentSpeed = baseSpeed;
-        let x = 300; let y = 200;
-        let dx = 1; let dy = 0;
-        let snake = [];
-        let snakeLength = 30;
-        let isPaused = false;
-        let inCountdown = false;
-        
-        let frog = { x: 0, y: 0, gold: false };
-        const keys = {};
+    <div id="hud">
+        <div id="stats">HP: <span id="hp">100</span> | <span id="w-name">PISTOL</span></div>
+        <div id="crosshair"></div>
+        <div id="ammo-display">15 / 15</div>
+    </div>
 
-        window.addEventListener("keydown", e => {
-            const key = e.key.toLowerCase();
-            keys[key] = true;
-            if (e.key === "Escape") togglePause();
-            if (isPaused || inCountdown) return;
-            if ((key === 'w' || e.key === 'ArrowUp') && dy === 0) { dx = 0; dy = -1; }
-            if ((key === 's' || e.key === 'ArrowDown') && dy === 0) { dx = 0; dy = 1; }
-            if ((key === 'a' || e.key === 'ArrowLeft') && dx === 0) { dx = -1; dy = 0; }
-            if ((key === 'd' || e.key === 'ArrowRight') && dx === 0) { dx = 1; dy = 0; }
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } } </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+
+        let peer, conn, otherPlayer;
+        let health = 100, selectedWep = 1, ammo = 15, shootInterval, isDead = false;
+        const weapons = { 1: { name: "PISTOL", ammo: 15 }, 2: { name: "MICRO SMG", ammo: 30 } };
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xa0d8ef);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new PointerLockControls(camera, document.body);
+        const raycaster = new THREE.Raycaster();
+
+        // --- PARETS (OBSTACLES) ---
+        const walls = [];
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+
+        function createWall(w, h, d, x, z) {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+            mesh.position.set(x, h/2, z);
+            scene.add(mesh);
+            walls.push(new THREE.Box3().setFromObject(mesh));
+        }
+
+        // El bloc negre central
+        createWall(12, 5, 12, 0, 0);
+        // Alguns blocs extra de decoració/cobertura
+        createWall(4, 3, 4, 15, -15);
+        createWall(4, 3, 4, -15, 15);
+
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0xdddddd }));
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+
+        // --- ALTRES ---
+        otherPlayer = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.5), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
+        body.position.y = 0.9;
+        otherPlayer.add(body);
+        otherPlayer.visible = false;
+        scene.add(otherPlayer);
+
+        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.5), new THREE.MeshStandardMaterial({ color: 0x000000 }));
+        gun.position.set(0.4, -0.3, -0.6);
+        camera.add(gun);
+        scene.add(camera);
+
+        // --- SISTEMA DE COL·LISIÓ ---
+        function checkCollision(nextPos) {
+            const playerBox = new THREE.Box3().setFromCenterAndSize(
+                nextPos, 
+                new THREE.Vector3(0.8, 1.8, 0.8)
+            );
+            for (let wall of walls) {
+                if (playerBox.intersectsBox(wall)) return true;
+            }
+            return false;
+        }
+
+        // --- MENÚS ---
+        controls.addEventListener('unlock', () => {
+            if (!isDead && document.getElementById('lobby').style.display === 'none') {
+                document.getElementById('pause-menu').style.display = 'flex';
+            }
         });
 
-        window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+        window.resumeGame = () => {
+            document.getElementById('pause-menu').style.display = 'none';
+            controls.lock();
+        };
 
-        function togglePause() {
-            if (inCountdown) return;
-            isPaused = !isPaused;
-            if (isPaused) {
-                pauseScoreElement.innerText = score;
-                pauseMenu.style.display = "block";
-                document.body.style.cursor = "default"; // MOSTRAR RATOLÍ EN PAUSA
-            } else {
-                pauseMenu.style.display = "none";
-                document.body.style.cursor = "none";    // OCULTAR RATOLÍ JUGANT
+        window.exitToMenu = () => { window.location.href = 'index.html'; };
+
+        function spawn(isHost) {
+            isDead = false; health = 100;
+            document.getElementById('hp').innerText = health;
+            document.getElementById('respawn-timer').style.display = 'none';
+            if (isHost) camera.position.set(30, 1.8, 30);
+            else camera.position.set(-30, 1.8, -30);
+            camera.lookAt(0, 1.8, 0);
+            controls.lock();
+        }
+
+        function die() {
+            isDead = true; controls.unlock();
+            document.getElementById('respawn-timer').style.display = 'block';
+            let timer = 10;
+            const int = setInterval(() => {
+                timer--; document.getElementById('seconds').innerText = timer;
+                if (timer <= 0) { clearInterval(int); spawn(peer.id === document.getElementById('my-id').innerText); }
+            }, 1000);
+        }
+
+        // --- COMBAT ---
+        function shoot() {
+            if (isDead || ammo <= 0 || !controls.isLocked) return;
+            ammo--;
+            document.getElementById('ammo-display').innerText = `${ammo} / ${weapons[selectedWep].ammo}`;
+            const laser = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 40), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            const wp = new THREE.Vector3(); gun.getWorldPosition(wp);
+            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+            laser.position.copy(wp); laser.lookAt(wp.clone().add(dir));
+            scene.add(laser); setTimeout(() => scene.remove(laser), 50);
+            raycaster.setFromCamera({x: 0, y: 0}, camera);
+            const hit = raycaster.intersectObjects([otherPlayer, ...scene.children.filter(c => c.geometry instanceof THREE.BoxGeometry && c !== floor)], true);
+            if (hit.length > 0 && hit[0].object.parent === otherPlayer && conn) conn.send({ type: 'hit', dmg: 15 });
+        }
+
+        window.addEventListener('mousedown', () => {
+            if (!controls.isLocked || isDead) return;
+            shoot();
+            if (selectedWep === 2) shootInterval = setInterval(shoot, 150);
+        });
+        window.addEventListener('mouseup', () => clearInterval(shootInterval));
+
+        const keys = {};
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            if (e.key === '1' || e.key === '2') {
+                selectedWep = parseInt(e.key);
+                ammo = weapons[selectedWep].ammo;
+                document.getElementById('w-name').innerText = weapons[selectedWep].name;
             }
-        }
+            if (e.key.toLowerCase() === 'r') ammo = weapons[selectedWep].ammo;
+        });
+        window.addEventListener('keyup', e => keys[e.code] = false);
 
-        function resumeGame() {
-            pauseMenu.style.display = "none";
-            startCountdown();
-        }
+        // --- NETWORK ---
+        peer = new Peer();
+        peer.on('open', id => document.getElementById('my-id').innerText = id);
+        window.connectToFriend = () => { conn = peer.connect(document.getElementById('join-id').value); setupConn(); };
+        peer.on('connection', c => { conn = c; setupConn(); document.getElementById('start-btn').style.display = 'block'; });
 
-        function startCountdown() {
-            inCountdown = true;
-            countdownElement.style.display = "block";
-            document.body.style.cursor = "none";
-            let count = 3;
-            countdownElement.innerText = count;
-            let timer = setInterval(() => {
-                count--;
-                if (count > 0) countdownElement.innerText = count;
-                else {
-                    clearInterval(timer);
-                    countdownElement.style.display = "none";
-                    inCountdown = false;
-                    isPaused = false;
+        function setupConn() {
+            conn.on('data', data => {
+                if (data.type === 'start') startGame(false);
+                if (data.type === 'move') {
+                    otherPlayer.visible = true;
+                    otherPlayer.position.set(data.pos.x, data.pos.y - 1.8, data.pos.z);
+                    otherPlayer.rotation.y = data.rot;
                 }
-            }, 700);
-        }
-
-        function spawnFrog() {
-            frog.x = Math.floor(Math.random() * (canvas.width / 20 - 2) + 1) * 20 + 10;
-            frog.y = Math.floor(Math.random() * (canvas.height / 20 - 2) + 1) * 20 + 10;
-            frog.gold = Math.random() < 0.15;
-        }
-
-        function update() {
-            if (isPaused || inCountdown) return;
-            let multiplier = keys["shift"] ? 2.2 : 1;
-            let step = currentSpeed * multiplier;
-            x += dx * step; y += dy * step;
-            if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return reset();
-            if (snake.length > 40) {
-                for (let i = 25; i < snake.length; i++) {
-                    let d = Math.hypot(x - snake[i].x, y - snake[i].y);
-                    if (d < 6) return reset();
+                if (data.type === 'hit' && !isDead) {
+                    health -= data.dmg; document.getElementById('hp').innerText = health;
+                    if (health <= 0) die();
                 }
-            }
-            snake.unshift({x, y});
-            if (snake.length > snakeLength) snake.pop();
-            let dist = Math.hypot(x - frog.x, y - frog.y);
-            if (dist < 18) {
-                score += frog.gold ? 5 : 1;
-                snakeLength += frog.gold ? 35 : 15;
-                currentSpeed += 0.1; 
-                scoreElement.innerText = score;
-                spawnFrog();
-            }
-        }
-
-        function draw() {
-            ctx.fillStyle = "#020205";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Quadrícula
-            ctx.strokeStyle = "rgba(188, 19, 254, 0.15)";
-            ctx.lineWidth = 1;
-            for(let i=0; i<=canvas.width; i+=20) {
-                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke();
-            }
-            for(let i=0; i<=canvas.height; i+=20) {
-                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke();
-            }
-
-            // Rana
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = frog.gold ? "#f1c40f" : "#2ecc71";
-            ctx.font = "24px Arial";
-            ctx.fillText(frog.gold ? "👑" : "🐸", frog.x - 12, frog.y + 9);
-
-            // Serp
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#bc13fe";
-            snake.forEach((segment, i) => {
-                let opacity = 1 - (i / snake.length);
-                if (keys["shift"] && i % 2 === 0) ctx.fillStyle = "#fff";
-                else ctx.fillStyle = `rgba(188, 19, 254, ${opacity})`;
-                ctx.beginPath();
-                let size = (i === 0) ? 12 : 8;
-                ctx.arc(segment.x, segment.y, size, 0, Math.PI * 2);
-                ctx.fill();
             });
-            ctx.shadowBlur = 0;
         }
 
-        function reset() {
-            document.body.style.cursor = "default"; // MOSTRAR RATOLÍ PER L'ALERT
-            alert("SYSTEM COLLISION\nSCORE ARCHIVED: " + score);
-            score = 0;
-            currentSpeed = baseSpeed;
-            scoreElement.innerText = score;
-            snakeLength = 30; snake = [];
-            x = 300; y = 200; dx = 1; dy = 0;
-            spawnFrog();
-            document.body.style.cursor = "none"; // TORNAR A OCULTAR
-        }
+        window.startGame = (host = true) => {
+            if (host && conn) conn.send({ type: 'start' });
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            spawn(host);
+            setInterval(() => { if(conn && conn.open) conn.send({ type: 'move', pos: camera.position, rot: camera.rotation.y }); }, 30);
+        };
 
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls.isLocked && !isDead) {
+                const speed = keys['ShiftLeft'] ? 0.16 : 0.08;
+                const oldPos = camera.position.clone();
+                
+                if (keys['KeyW']) controls.moveForward(speed);
+                if (keys['KeyS']) controls.moveForward(-speed);
+                if (keys['KeyA']) controls.moveRight(-speed);
+                if (keys['KeyD']) controls.moveRight(speed);
 
-        spawnFrog();
-        loop();
+                // Si la nova posició toca una paret, torna enrere
+                if (checkCollision(camera.position)) {
+                    camera.position.copy(oldPos);
+                }
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
     </script>
 </body>
 </html>
