@@ -8,6 +8,7 @@
         :root {
             --led-purple: #bc13fe;
             --led-cyan: #00f3ff;
+            --led-red: #ff003c;
             --bg-obsidian: #020205;
         }
 
@@ -55,6 +56,11 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
         }
 
         .box-active {
@@ -63,20 +69,31 @@
             box-shadow: inset 0 0 15px rgba(188, 19, 254, 0.2);
         }
 
-        .box-locked {
-            border: 2px dashed #222;
-            opacity: 0.4;
+        .box-fight {
+            border: 2px solid var(--led-red);
+            background: rgba(255, 0, 60, 0.05);
+            box-shadow: inset 0 0 15px rgba(255, 0, 60, 0.2);
+        }
+
+        .box-fight:hover {
+            box-shadow: 0 0 20px var(--led-red);
         }
 
         .box h2 { 
             color: white; 
-            margin: 15px 0 5px 0; 
+            margin: 10px 0 5px 0; 
             letter-spacing: 3px; 
             font-size: 22px;
             text-transform: uppercase;
         }
 
+        .emoji {
+            font-size: 60px; /* Mida igual per als dos jocs */
+            margin-bottom: 5px;
+        }
+
         .status-dot { font-size: 10px; color: var(--led-cyan); font-weight: bold; margin-bottom: 10px; }
+        .status-red { color: var(--led-red); }
         .init-session { font-family: monospace; color: #444; font-size: 11px; }
 
         /* Footer Info */
@@ -89,7 +106,7 @@
             text-transform: uppercase;
         }
 
-        /* Caixa de Views (Disseny idèntic al Captura de pantalla 2026-05-05 101003.png) */
+        /* Caixa de Views */
         .views-container {
             border: 2px solid var(--led-purple);
             padding: 10px 40px;
@@ -126,38 +143,38 @@
     <div class="grid">
         <!-- Snake Box -->
         <a href="snakev3.html" class="box box-active">
-            <img src="https://img.icons8.com/color/96/snake.png" alt="snake" width="60">
+            <span class="emoji">🐍</span>
             <h2>SNAKE LED</h2>
             <div class="status-dot">● SYSTEM ONLINE</div>
             <div class="init-session">[ INITIALIZE SESSION ]</div>
         </a>
 
-        <!-- Locked Box -->
-        <div class="box box-locked">
-            <img src="https://img.icons8.com/ios-filled/100/444444/lock.png" alt="lock" width="50">
-            <h2 style="color: #444;">VOID_DATA</h2>
-            <div class="status-dot" style="color: #333;">● LOCKED</div>
-        </div>
+        <!-- Fight Box -->
+        <a href="fightv3.html" class="box box-fight">
+            <span class="emoji">🔫</span>
+            <h2>1v1 FIGHT</h2>
+            <div class="status-dot status-red">● ARENA READY</div>
+            <div class="init-session">[ JOIN COMBAT ]</div>
+        </a>
     </div>
 
     <div class="user-info">USER: RENZ029 | STATUS: STABLE</div>
 
     <div class="views-container">
         <span class="views-label">SYSTEM VIEWS</span>
-        <div id="count" class="views-number">029</div>
+        <div id="count" class="views-number">084</div>
     </div>
 
     <script>
-        // Funció per carregar les visites reals sense imatges (perquè no es trenqui)
         async function loadViews() {
             try {
                 const response = await fetch('https://api.counterapi.dev/v1/renzz029/glitchbox/up');
                 const data = await response.json();
                 if(data.count) {
-                    document.getElementById('count').innerText = data.count;
+                    document.getElementById('count').innerText = data.count.toString().padStart(3, '0');
                 }
             } catch (e) {
-                // Si el wifi de l'insti bloqueja la connexió, es queda el número 029 per defecte
+                // Es queda el valor de la captura si falla la connexió
             }
         }
         loadViews();
