@@ -21,7 +21,6 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            /* El cursor normal per triar jocs */
             cursor: default;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), var(--bg-obsidian);
             background-size: 100% 4px;
@@ -97,25 +96,48 @@
             font-weight: bold;
         }
 
-        .emoji {
-            font-size: 50px;
-        }
+        .emoji { font-size: 50px; }
 
+        /* --- ESTIL DEL COMPTADOR LED --- */
         .footer {
             position: fixed;
-            bottom: 25px;
+            bottom: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 2px;
         }
 
-        .counter-box {
-            margin-top: 15px;
-            filter: hue-rotate(0deg); /* Manté el lila original */
+        .system-info {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .led-counter-container {
+            border: 2px solid var(--led-purple);
+            background: #111;
+            padding: 5px 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px var(--led-purple);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .led-label {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            color: var(--led-purple);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2px;
+        }
+
+        .led-counter-container img {
+            filter: drop-shadow(0 0 5px var(--led-purple));
         }
     </style>
 </head>
@@ -127,7 +149,6 @@
     </div>
 
     <div class="game-grid">
-        <!-- ACCÉS AL TEU JOC -->
         <a href="snakev3.html" class="card">
             <span class="emoji">🐍</span>
             <h2>SNAKE LED</h2>
@@ -135,7 +156,6 @@
             <p style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 10px;">[ INITIALIZE SESSION ]</p>
         </a>
 
-        <!-- ESPAI PER AL PROPER JOC -->
         <div class="card" style="opacity: 0.2; cursor: not-allowed; border-style: dashed;">
             <span class="emoji">🔒</span>
             <h2>VOID_DATA</h2>
@@ -144,11 +164,12 @@
     </div>
 
     <div class="footer">
-        <div>USER: RENZ029 | VERSION: 3.2.0 | STATUS: STABLE</div>
+        <div class="system-info">USER: RENZ029 | STATUS: STABLE</div>
         
-        <!-- COMPTADOR DE VISITES INTEGRAT -->
-        <div class="counter-box">
-            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frenz029.github.io%2Fglitchbox&count_bg=%23BC13FE&title_bg=%23333333&icon=&icon_color=%23E7E7E7&title=VISITS&edge_flat=false" alt="Visits">
+        <!-- COMPTADOR DISSENYAT COM A PANTALLA LED -->
+        <div class="led-counter-container">
+            <div class="led-label">System Views</div>
+            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frenzz029.github.io%2Fglitchbox&count_bg=%2300000000&title_bg=%2300000000&icon=&icon_color=%23E7E7E7&title=%20&edge_flat=true" alt="Views">
         </div>
     </div>
 
