@@ -28,8 +28,7 @@
         .header { text-align: center; margin-bottom: 60px; }
         h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: 10px; margin: 0; text-transform: uppercase; text-shadow: 0 0 15px var(--led-purple); }
         .glitch-part { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
-        .subtitle { font-family: 'Courier New', monospace; color: rgba(255, 255, 255, 0.4); letter-spacing: 4px; font-size: 13px; margin-top: 15px; text-transform: uppercase; }
-
+        
         .game-grid { display: flex; gap: 40px; margin-bottom: 50px; }
         .card {
             text-decoration: none; width: 300px; height: 200px;
@@ -38,9 +37,7 @@
             align-items: center; justify-content: center; transition: 0.3s ease;
         }
         .card:hover { transform: translateY(-8px); border-color: var(--led-cyan); box-shadow: 0 0 30px rgba(188, 19, 254, 0.3); }
-        .card h2 { color: white; font-size: 24px; margin: 10px 0 0 0; letter-spacing: 2px; }
 
-        /* --- CONTADOR LED NET --- */
         .footer { text-align: center; }
         .system-info { font-family: 'Courier New', monospace; font-size: 10px; color: rgba(255, 255, 255, 0.3); letter-spacing: 2px; margin-bottom: 10px; }
         
@@ -53,63 +50,34 @@
             display: inline-block;
         }
 
-        .led-label {
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            color: var(--led-purple);
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
-        .led-number {
-            font-family: 'Courier New', monospace;
-            font-size: 32px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 10px var(--led-purple), 0 0 20px var(--led-purple);
-        }
+        .led-label { font-family: 'Courier New', monospace; font-size: 10px; color: var(--led-purple); letter-spacing: 2px; margin-bottom: 5px; }
+        .led-number { font-family: 'Courier New', monospace; font-size: 24px; font-weight: bold; color: #fff; text-shadow: 0 0 10px var(--led-purple); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>RENZ029_<span class="glitch-part">GLITCHBOX</span></h1>
-        <div class="subtitle">SYSTEM INTERFACE // READY_TO_PLAY</div>
     </div>
 
     <div class="game-grid">
         <a href="snakev3.html" class="card">
             <span style="font-size: 50px;">🐍</span>
             <h2>SNAKE LED</h2>
-            <div style="font-size: 10px; color: var(--led-cyan); margin-top: 10px;">● ONLINE</div>
         </a>
-        <div class="card" style="opacity: 0.2; cursor: not-allowed; border-style: dashed;">
-            <span style="font-size: 50px;">🔒</span>
-            <h2>VOID_DATA</h2>
-        </div>
     </div>
 
     <div class="footer">
-        <div class="system-info">USER: RENZ029 | STATUS: STABLE</div>
+        <div class="system-info">SYSTEM STATUS: ANALYZING TRAFFIC...</div>
         <div class="led-box">
-            <div class="led-label">SYSTEM VIEWS</div>
-            <div id="view-count" class="led-number">0</div>
+            <div class="led-label">GLOBAL_SESSIONS</div>
+            <div id="stats" class="led-number">LIVE_TRACKING</div>
         </div>
     </div>
 
-    <script>
-        // Sistema de comptatge intern (Sense errors de càrrega)
-        let visits = localStorage.getItem('glitchbox_visits');
-        
-        if (visits === null) {
-            visits = 1;
-        } else {
-            visits = parseInt(visits) + 1;
-        }
-        
-        localStorage.setItem('glitchbox_visits', visits);
-        document.getElementById('view-count').innerText = visits;
-    </script>
+    <!-- AQUEST SCRIPT COMPTA TOTS ELS USUARIS REALS SENSE IMATGES -->
+    <script data-goatcounter="https://renz029.goatcounter.com/count"
+            async src="//gc.zgo.at/count.js"></script>
 
 </body>
 </html>
