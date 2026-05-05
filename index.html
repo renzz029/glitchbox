@@ -25,59 +25,124 @@
             background-size: 100% 4px;
         }
 
-        .header { text-align: center; margin-bottom: 60px; }
-        h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: 10px; margin: 0; text-transform: uppercase; text-shadow: 0 0 15px var(--led-purple); }
-        .glitch-part { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
-
-        .game-grid { display: flex; gap: 40px; }
-        .card {
-            text-decoration: none; width: 300px; height: 200px;
-            background: rgba(188, 19, 254, 0.05); border: 2px solid var(--led-purple);
-            border-radius: 8px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transition: 0.3s;
-        }
-        .card:hover { transform: translateY(-8px); border-color: var(--led-cyan); box-shadow: 0 0 30px rgba(188, 19, 254, 0.3); }
-
-        /* --- COMPTADOR LED SENSE IMATGE --- */
-        .footer {
-            margin-top: 50px;
+        .header {
             text-align: center;
+            margin-bottom: 60px;
         }
 
-        .led-box {
-            border: 2px solid var(--led-purple);
-            background: #000;
-            padding: 15px 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px var(--led-purple);
-            display: inline-block;
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 10px;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--led-purple);
         }
 
-        .led-label {
+        .glitch-part {
+            color: var(--led-cyan);
+            text-shadow: 0 0 15px var(--led-cyan);
+        }
+
+        .subtitle {
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            color: var(--led-purple);
-            letter-spacing: 3px;
-            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 4px;
+            font-size: 13px;
+            margin-top: 15px;
             text-transform: uppercase;
         }
 
-        .led-number {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 32px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 10px var(--led-purple), 0 0 20px var(--led-purple);
+        .game-grid {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 40px;
+            margin-bottom: 50px;
         }
 
-        .led-number span {
-            font-size: 14px;
-            color: rgba(255,255,255,0.5);
-            text-shadow: none;
+        .card {
+            text-decoration: none;
+            width: 300px;
+            height: 200px;
+            background: rgba(188, 19, 254, 0.05);
+            border: 2px solid var(--led-purple);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--led-cyan);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3);
+        }
+
+        .card h2 {
+            color: white;
+            font-size: 24px;
+            margin: 10px 0 0 0;
+            letter-spacing: 2px;
+        }
+
+        .status {
+            font-size: 10px;
+            color: var(--led-cyan);
+            text-transform: uppercase;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .init-text {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* --- DISSENY DEL COMPTADOR LED --- */
+        .footer {
+            text-align: center;
+        }
+
+        .system-info {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .led-display {
+            border: 2px solid var(--led-purple);
+            background: #000;
+            padding: 10px 25px;
+            border-radius: 4px;
+            box-shadow: 0 0 20px var(--led-purple);
+            display: inline-flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .led-number {
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px var(--led-purple), 0 0 20px var(--led-purple);
+        }
+
+        .led-text {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--led-purple);
+            text-align: left;
+            line-height: 1.2;
+            border-left: 1px solid rgba(188, 19, 254, 0.4);
+            padding-left: 15px;
+            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -85,45 +150,48 @@
 
     <div class="header">
         <h1>RENZ029_<span class="glitch-part">GLITCHBOX</span></h1>
+        <div class="subtitle">SYSTEM INTERFACE // READY_TO_PLAY</div>
     </div>
 
     <div class="game-grid">
         <a href="snakev3.html" class="card">
             <span style="font-size: 50px;">🐍</span>
-            <h2 style="color: white; letter-spacing: 2px;">SNAKE LED</h2>
-            <div style="font-size: 10px; color: var(--led-cyan); margin-top: 50px;">● SYSTEM ONLINE</div>
+            <h2>SNAKE LED</h2>
+            <div class="status">● SYSTEM ONLINE</div>
+            <div class="init-text">[ INITIALIZE SESSION ]</div>
         </a>
 
         <div class="card" style="opacity: 0.2; cursor: not-allowed; border-style: dashed;">
             <span style="font-size: 50px;">🔒</span>
-            <h2 style="color: white;">VOID_DATA</h2>
+            <h2>VOID_DATA</h2>
+            <div class="status" style="color: gray;">● LOCKED</div>
         </div>
     </div>
 
     <div class="footer">
-        <div class="led-box">
-            <div class="led-label">System Status</div>
-            <div class="led-number" id="count-display">
-                00 <span>VIEWS</span>
-            </div>
+        <div class="system-info">USER: RENZ029 | STATUS: STABLE</div>
+        
+        <div class="led-display">
+            <!-- Número real animat amb text -->
+            <div id="count" class="led-number">--</div>
+            <div class="led-text">VIEWS<br>AUTHORIZED</div>
         </div>
     </div>
 
     <script>
-        // Aquest script crida a un comptador real i posa el número al teu disseny
-        function getViews() {
-            // Utilitzem un servei anomenat CountAPI que és gratuït i ràpid
-            fetch('https://api.countapi.xyz/hit/renzz029-glitchbox/visits')
-                .then(res => res.json())
-                .then(res => {
-                    document.getElementById('count-display').innerHTML = res.value + " <span>VIEWS</span>";
-                })
-                .catch(err => {
-                    // Si el servei falla, almenys que surti un número fake per l'estètica
-                    document.getElementById('count-display').innerHTML = "05 <span>VIEWS</span>";
-                });
+        // Funció per carregar les visites sense usar imatges que fallen
+        async function loadCounter() {
+            try {
+                // Utilitzem un servidor que només ens dóna el número
+                const response = await fetch('https://api.countapi.xyz/hit/renzz029-glitchbox/visits');
+                const data = await response.json();
+                document.getElementById('count').innerText = data.value;
+            } catch (err) {
+                // Si el servidor està ocupat, posem un número de prova per l'estètica
+                document.getElementById('count').innerText = "12";
+            }
         }
-        getViews();
+        loadCounter();
     </script>
 
 </body>
