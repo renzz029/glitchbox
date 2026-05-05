@@ -25,96 +25,30 @@
             background-size: 100% 4px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
+        .header { text-align: center; margin-bottom: 60px; }
+        h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: 10px; margin: 0; text-transform: uppercase; text-shadow: 0 0 15px var(--led-purple); }
+        .glitch-part { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
+        .subtitle { font-family: 'Courier New', monospace; color: rgba(255, 255, 255, 0.4); letter-spacing: 4px; font-size: 13px; margin-top: 15px; text-transform: uppercase; }
 
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            letter-spacing: 10px;
-            margin: 0;
-            text-transform: uppercase;
-            text-shadow: 0 0 15px var(--led-purple);
-        }
-
-        .glitch-part {
-            color: var(--led-cyan);
-            text-shadow: 0 0 15px var(--led-cyan);
-        }
-
-        .subtitle {
-            font-family: 'Courier New', monospace;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 4px;
-            font-size: 13px;
-            margin-top: 15px;
-            text-transform: uppercase;
-        }
-
-        .game-grid {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-
+        .game-grid { display: flex; gap: 40px; margin-bottom: 50px; }
         .card {
-            text-decoration: none;
-            width: 300px;
-            height: 200px;
-            background: rgba(188, 19, 254, 0.05);
-            border: 2px solid var(--led-purple);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s ease;
-            cursor: pointer;
+            text-decoration: none; width: 300px; height: 200px;
+            background: rgba(188, 19, 254, 0.05); border: 2px solid var(--led-purple);
+            border-radius: 8px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.3s ease;
         }
+        .card:hover { transform: translateY(-8px); border-color: var(--led-cyan); box-shadow: 0 0 30px rgba(188, 19, 254, 0.3); }
+        .card h2 { color: white; font-size: 24px; margin: 10px 0 0 0; letter-spacing: 2px; }
 
-        .card:hover {
-            transform: translateY(-8px);
-            border-color: var(--led-cyan);
-            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3);
-        }
-
-        .card h2 {
-            color: white;
-            font-size: 24px;
-            margin: 10px 0 0 0;
-            letter-spacing: 2px;
-        }
-
-        .status {
-            font-size: 10px;
-            color: var(--led-cyan);
-            text-transform: uppercase;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .footer {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .system-info {
-            font-family: 'Courier New', monospace;
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-
+        .footer { text-align: center; }
+        .system-info { font-family: 'Courier New', monospace; font-size: 10px; color: rgba(255, 255, 255, 0.3); letter-spacing: 2px; margin-bottom: 5px; }
+        
+        /* Finestra per al comptador */
         iframe {
             border: none;
-            width: 250px;
-            height: 120px;
-            overflow: hidden;
+            width: 200px;
+            height: 100px;
+            background: transparent;
         }
     </style>
 </head>
@@ -129,20 +63,18 @@
         <a href="snakev3.html" class="card">
             <span style="font-size: 50px;">🐍</span>
             <h2>SNAKE LED</h2>
-            <div class="status">● SYSTEM ONLINE</div>
-            <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 15px;">[ INITIALIZE SESSION ]</div>
+            <div style="font-size: 10px; color: var(--led-cyan); margin-top: 10px; font-weight: bold;">● SYSTEM ONLINE</div>
         </a>
 
         <div class="card" style="opacity: 0.2; cursor: not-allowed; border-style: dashed;">
             <span style="font-size: 50px;">🔒</span>
             <h2>VOID_DATA</h2>
-            <div class="status" style="color: gray;">● LOCKED</div>
         </div>
     </div>
 
     <div class="footer">
         <div class="system-info">USER: RENZ029 | STATUS: STABLE</div>
-        <!-- Connexió al fitxer del comptador -->
+        <!-- Crida al fitxer que has creat abans -->
         <iframe src="counter.html"></iframe>
     </div>
 
