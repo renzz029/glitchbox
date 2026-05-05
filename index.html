@@ -21,66 +21,101 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            /* Línies d'escaneig tipus monitor antic */
+            /* Efecte de línies de monitor antic */
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), var(--bg-obsidian);
             background-size: 100% 4px;
         }
 
-        .header { text-align: center; margin-bottom: 60px; }
-        
-        h1 { 
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            letter-spacing: 10px; 
-            margin: 0; 
-            text-transform: uppercase; 
-            text-shadow: 0 0 15px var(--led-purple); 
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
         }
 
-        .glitch-part { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
-        
-        .subtitle { 
-            font-family: 'Courier New', monospace; 
-            color: rgba(255, 255, 255, 0.4); 
-            letter-spacing: 4px; 
-            font-size: 13px; 
-            margin-top: 15px; 
-            text-transform: uppercase; 
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 10px;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px var(--led-purple);
         }
 
-        .game-grid { display: flex; gap: 40px; margin-bottom: 50px; }
+        .glitch-part {
+            color: var(--led-cyan);
+            text-shadow: 0 0 15px var(--led-cyan);
+        }
+
+        .subtitle {
+            font-family: 'Courier New', monospace;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 4px;
+            font-size: 13px;
+            margin-top: 15px;
+            text-transform: uppercase;
+        }
+
+        .game-grid {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
 
         .card {
-            text-decoration: none; 
-            width: 300px; 
+            text-decoration: none;
+            width: 300px;
             height: 200px;
-            background: rgba(188, 19, 254, 0.05); 
+            background: rgba(188, 19, 254, 0.05);
             border: 2px solid var(--led-purple);
-            border-radius: 8px; 
-            display: flex; 
+            border-radius: 8px;
+            display: flex;
             flex-direction: column;
-            align-items: center; 
-            justify-content: center; 
+            align-items: center;
+            justify-content: center;
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
-        .card:hover { 
-            transform: translateY(-8px); 
-            border-color: var(--led-cyan); 
-            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3); 
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--led-cyan);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3);
+            background: rgba(188, 19, 254, 0.1);
         }
 
-        .card h2 { color: white; font-size: 24px; margin: 10px 0 0 0; letter-spacing: 2px; }
+        .card h2 {
+            color: white;
+            font-size: 24px;
+            margin: 10px 0 0 0;
+            letter-spacing: 2px;
+        }
 
-        /* --- CONTADOR HITS (GRATIS I INFINIT) --- */
-        .footer { text-align: center; margin-top: 20px; }
-        
-        .system-info { 
-            font-family: 'Courier New', monospace; 
-            font-size: 10px; 
-            color: rgba(255, 255, 255, 0.3); 
-            letter-spacing: 2px; 
-            margin-bottom: 15px; 
+        .status {
+            font-size: 10px;
+            color: var(--led-cyan);
+            text-transform: uppercase;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .init-text {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* --- CONTADOR LED DISSENYAT --- */
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .system-info {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
 
         .led-frame {
@@ -94,7 +129,6 @@
 
         .led-frame img {
             display: block;
-            /* Filtre per fer que brilli més */
             filter: drop-shadow(0 0 5px var(--led-purple));
         }
     </style>
@@ -107,15 +141,19 @@
     </div>
 
     <div class="game-grid">
+        <!-- JOC 1: SNAKE -->
         <a href="snakev3.html" class="card">
             <span style="font-size: 50px;">🐍</span>
             <h2>SNAKE LED</h2>
-            <div style="font-size: 10px; color: var(--led-cyan); margin-top: 10px; font-weight: bold;">● SYSTEM ONLINE</div>
+            <div class="status">● SYSTEM ONLINE</div>
+            <div class="init-text">[ INITIALIZE SESSION ]</div>
         </a>
 
+        <!-- JOC 2: PROXIMAMENT -->
         <div class="card" style="opacity: 0.2; cursor: not-allowed; border-style: dashed;">
             <span style="font-size: 50px;">🔒</span>
             <h2>VOID_DATA</h2>
+            <div class="status" style="color: gray;">● LOCKED</div>
         </div>
     </div>
 
@@ -123,8 +161,8 @@
         <div class="system-info">USER: RENZ029 | STATUS: STABLE</div>
         
         <div class="led-frame">
-            <!-- Aquest és el link màgic de HITS. S'actualitza sol cada cop que algú entra -->
-            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frenzz029.github.io%2Fglitchbox&count_bg=%23BC13FE&title_bg=%23303030&icon=&icon_color=%23E7E7E7&title=SYSTEM_VIEWS&edge_flat=false" alt="Views"/>
+            <!-- Comptador real de HITS -->
+            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frenzz029.github.io%2Fglitchbox&count_bg=%23BC13FE&title_bg=%23303030&icon=&icon_color=%23E7E7E7&title=VIEWS&edge_flat=false" alt="Views Counter"/>
         </div>
     </div>
 
