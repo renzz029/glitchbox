@@ -9,6 +9,8 @@
             --led-purple: #bc13fe;
             --led-cyan: #00f3ff;
             --led-red: #ff003c;
+            --led-gold: #f1c40f;
+            --led-green: #39ff14;
             --bg-obsidian: #020205;
         }
 
@@ -24,8 +26,7 @@
             min-height: 100vh;
         }
 
-        /* Capçalera */
-        .header { text-align: center; margin-bottom: 50px; }
+        .header { text-align: center; margin-bottom: 40px; }
         h1 { 
             font-size: 3.5rem; 
             font-weight: 900; 
@@ -35,102 +36,49 @@
             text-shadow: 0 0 15px var(--led-purple);
         }
         .cyan-text { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
-        .subtitle {
-            font-family: monospace;
-            color: #555;
-            letter-spacing: 5px;
-            font-size: 14px;
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
+        .subtitle { font-family: monospace; color: #555; letter-spacing: 5px; font-size: 14px; margin-top: 10px; text-transform: uppercase; }
 
-        /* Grelha de Jocs */
-        .grid { display: flex; gap: 30px; margin-bottom: 40px; }
+        /* Grid de jocs actualitzat */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+            max-width: 1000px; 
+            margin-bottom: 40px; 
+        }
         
         .box {
-            width: 320px;
-            height: 220px;
+            width: 300px;
+            height: 180px;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: 0.3s;
+            border: 2px solid #222;
+            background: rgba(255,255,255,0.02);
         }
 
-        .box:hover {
-            transform: translateY(-5px);
-        }
+        .box:hover { transform: translateY(-5px); }
+        
+        /* Estils per joc */
+        .box-snake { border-color: var(--led-purple); box-shadow: inset 0 0 10px rgba(188,19,254,0.1); }
+        .box-fight { border-color: var(--led-red); box-shadow: inset 0 0 10px rgba(255,0,60,0.1); }
+        .box-money { border-color: var(--led-gold); box-shadow: inset 0 0 10px rgba(241,196,15,0.1); }
+        .box-obby { border-color: var(--led-green); box-shadow: inset 0 0 10px rgba(57,255,20,0.1); }
+        .box-clicker { border-color: var(--led-cyan); box-shadow: inset 0 0 10px rgba(0,243,255,0.1); }
 
-        .box-active {
-            border: 2px solid var(--led-purple);
-            background: rgba(188, 19, 254, 0.05);
-            box-shadow: inset 0 0 15px rgba(188, 19, 254, 0.2);
-        }
+        .box h2 { color: white; margin: 10px 0 5px 0; letter-spacing: 2px; font-size: 18px; text-transform: uppercase; }
+        .emoji { font-size: 45px; }
+        .status-dot { font-size: 10px; font-family: monospace; letter-spacing: 1px; margin-bottom: 5px; }
 
-        .box-fight {
-            border: 2px solid var(--led-red);
-            background: rgba(255, 0, 60, 0.05);
-            box-shadow: inset 0 0 15px rgba(255, 0, 60, 0.2);
-        }
-
-        .box-fight:hover {
-            box-shadow: 0 0 20px var(--led-red);
-        }
-
-        .box h2 { 
-            color: white; 
-            margin: 10px 0 5px 0; 
-            letter-spacing: 3px; 
-            font-size: 22px;
-            text-transform: uppercase;
-        }
-
-        .emoji {
-            font-size: 60px; /* Mida igual per als dos jocs */
-            margin-bottom: 5px;
-        }
-
-        .status-dot { font-size: 10px; color: var(--led-cyan); font-weight: bold; margin-bottom: 10px; }
-        .status-red { color: var(--led-red); }
-        .init-session { font-family: monospace; color: #444; font-size: 11px; }
-
-        /* Footer Info */
-        .user-info {
-            font-family: monospace;
-            color: #444;
-            font-size: 11px;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        /* Caixa de Views */
-        .views-container {
-            border: 2px solid var(--led-purple);
-            padding: 10px 40px;
-            border-radius: 10px;
-            background: black;
-            box-shadow: 0 0 15px var(--led-purple);
-            text-align: center;
-        }
-
-        .views-label {
-            color: var(--led-purple);
-            font-family: monospace;
-            font-size: 10px;
-            letter-spacing: 3px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .views-number {
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            font-family: monospace;
-        }
+        /* Footer */
+        .user-info { font-family: monospace; color: #444; font-size: 11px; letter-spacing: 2px; margin-bottom: 15px; }
+        .views-container { border: 2px solid var(--led-purple); padding: 10px 40px; border-radius: 10px; background: black; box-shadow: 0 0 15px var(--led-purple); text-align: center; }
+        .views-label { color: var(--led-purple); font-family: monospace; font-size: 10px; letter-spacing: 3px; display: block; }
+        .views-number { color: white; font-size: 20px; font-weight: bold; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -141,20 +89,30 @@
     </div>
 
     <div class="grid">
-        <!-- Snake Box -->
-        <a href="snakev3.html" class="box box-active">
+        <a href="snakev3.html" class="box box-snake">
             <span class="emoji">🐍</span>
             <h2>SNAKE LED</h2>
-            <div class="status-dot">● SYSTEM ONLINE</div>
-            <div class="init-session">[ INITIALIZE SESSION ]</div>
+            <div class="status-dot" style="color:var(--led-purple)">● ONLINE</div>
         </a>
-
-        <!-- Fight Box -->
         <a href="fightv3.html" class="box box-fight">
             <span class="emoji">🔫</span>
             <h2>1v1 FIGHT</h2>
-            <div class="status-dot status-red">● ARENA READY</div>
-            <div class="init-session">[ JOIN COMBAT ]</div>
+            <div class="status-dot" style="color:var(--led-red)">● READY</div>
+        </a>
+        <a href="money.html" class="box box-money">
+            <span class="emoji">💰</span>
+            <h2>MONEY TYCOON</h2>
+            <div class="status-dot" style="color:var(--led-gold)">● CONNECTED</div>
+        </a>
+        <a href="obbyv3.html" class="box box-obby">
+            <span class="emoji">🏃</span>
+            <h2>PARKOUR OBBY</h2>
+            <div class="status-dot" style="color:var(--led-green)">● LOADED</div>
+        </a>
+        <a href="clickerv3.html" class="box box-clicker">
+            <span class="emoji">💀</span>
+            <h2>SKULL CLICKER</h2>
+            <div class="status-dot" style="color:var(--led-cyan)">● SYNCED</div>
         </a>
     </div>
 
@@ -162,7 +120,7 @@
 
     <div class="views-container">
         <span class="views-label">SYSTEM VIEWS</span>
-        <div id="count" class="views-number">084</div>
+        <div id="count" class="views-number">000</div>
     </div>
 
     <script>
@@ -173,12 +131,9 @@
                 if(data.count) {
                     document.getElementById('count').innerText = data.count.toString().padStart(3, '0');
                 }
-            } catch (e) {
-                // Es queda el valor de la captura si falla la connexió
-            }
+            } catch (e) {}
         }
         loadViews();
     </script>
-
 </body>
 </html>
