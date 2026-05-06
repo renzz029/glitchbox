@@ -2,150 +2,143 @@
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>1v1 FIX TOTAL - GLITCHBOX</title>
-    <!-- Carreguem les llibreries de forma estàndard[cite: 2] -->
+    <title>FORCE START 1v1 - GLITCHBOX</title>
+    <!-- Carreguem Three.js i PeerJS directament[cite: 2, 5] -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { margin: 0; background: #050505; color: #00f3ff; font-family: 'Courier New', monospace; overflow: hidden; }
-        #gui { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.9); padding: 15px; border: 2px solid #bc13fe; box-shadow: 0 0 10px #bc13fe; }
-        #menu { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
-        .box { background: #111; padding: 20px; border: 2px solid #00f3ff; text-align: center; }
-        input { padding: 12px; background: #000; color: #fff; border: 1px solid #bc13fe; margin: 10px; width: 250px; font-size: 16px; }
-        button { padding: 12px 25px; background: #bc13fe; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background: #ff003c; }
-        #status { margin-top: 15px; color: #ff003c; }
+        body { margin: 0; background: #000; color: #00f3ff; font-family: 'Courier New', monospace; overflow: hidden; }
+        #overlay { position: absolute; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; border: 5px solid #bc13fe; }
+        .panel { background: #111; padding: 30px; border: 2px solid #00f3ff; box-shadow: 0 0 20px #bc13fe; max-width: 500px; }
+        h1 { color: #bc13fe; margin-top: 0; }
+        input { padding: 15px; background: #000; color: #fff; border: 1px solid #bc13fe; margin: 10px 0; width: 80%; font-size: 18px; }
+        button { padding: 15px 30px; background: #bc13fe; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: 18px; width: 100%; }
+        button:hover { background: #00f3ff; color: #000; }
+        #my-id-display { font-size: 24px; color: #fff; background: #222; padding: 10px; margin: 10px 0; border: 1px dashed #00f3ff; word-break: break-all; }
+        #status-log { color: #ff003c; font-size: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div id="gui">EL TEU ID: <b id="my-id" style="color:white">GENERANT...</b></div>
-
-<div id="menu">
-    <div class="box">
-        <h1 style="color:#bc13fe">1v1 NEON STRIKE</h1>
-        <p>1. Copia el teu ID i envia'l al teu amic.</p>
-        <p>2. O posa l'ID del teu amic aquí sota:</p>
-        <input type="text" id="remote-id" placeholder="Escriu l'ID aquí...">
-        <br>
-        <button id="btn-connect">CONNECTAR I JUGAR</button>
-        <div id="status">Connectant amb el servidor PeerJS...</div>
+<div id="overlay">
+    <div class="panel">
+        <h1>STRIKE-NET v3</h1>
+        
+        <div>EL TEU ID (Passa'l a l'amic):</div>
+        <div id="my-id-display">CONNECTANT...</div>
+        
+        <hr style="border-color: #333; margin: 20px 0;">
+        
+        <div>ID DE L'AMIC:</div>
+        <input type="text" id="friend-id" placeholder="Enganxa el codi aquí...">
+        <button id="btn-join">ENTRAR A LA PARTIDA</button>
+        
+        <div id="status-log">Iniciant protocols de xarxa...</div>
+        <button onclick="location.reload()" style="background:none; color:#666; font-size:12px; margin-top:20px; width:auto; padding:5px;">RECARREGAR PÀGINA SI NO SURT L'ID</button>
     </div>
 </div>
 
 <script>
-    // --- LÒGICA DE XARXA (PEERJS)[cite: 2] ---
-    const peer = new Peer(); // Connexió automàtica al servidor de PeerJS
-    let conn;
-    let isConnected = false;
+    // --- MOTOR DE XARXA[cite: 2] ---
+    let peer, conn;
+    const statusLog = document.getElementById('status-log');
+    const myIdDisplay = document.getElementById('my-id-display');
 
-    // Element per mostrar l'ID
-    const myIdDisplay = document.getElementById('my-id');
-    const statusDisplay = document.getElementById('status');
+    function initNetwork() {
+        // Creem el Peer amb una configuració neta
+        peer = new Peer();
 
-    peer.on('open', (id) => {
-        console.log('El meu ID és: ' + id);
-        myIdDisplay.innerText = id;
-        statusDisplay.innerText = "Servidor a punt. Esperant connexió...";
-    });
+        peer.on('open', (id) => {
+            console.log("ID rebut:", id);
+            myIdDisplay.innerText = id;
+            statusLog.innerText = "SISTEMA ONLINE. Esperant amic...";
+            statusLog.style.color = "#39ff14";
+        });
 
-    peer.on('error', (err) => {
-        console.error(err);
-        statusDisplay.innerText = "Error: " + err.type;
-    });
+        peer.on('error', (err) => {
+            console.error("Error Peer:", err);
+            statusLog.innerText = "ERROR XARXA: " + err.type;
+            if(err.type === 'browser-incompatible') alert("El teu navegador no és compatible amb PeerJS");
+        });
 
-    // Rebre connexió de l'amic
-    peer.on('connection', (c) => {
-        conn = c;
-        setupNetworkEvents();
-        startBattle();
-    });
+        // Rebre trucada
+        peer.on('connection', (c) => {
+            conn = c;
+            statusLog.innerText = "CONNEXIÓ REBUDA!";
+            setupGameEvents();
+            setTimeout(launchGame, 1000);
+        });
+    }
 
-    // Intentar connectar tu a l'amic
-    document.getElementById('btn-connect').onclick = () => {
-        const rId = document.getElementById('remote-id').value;
-        if (!rId) return alert("Posa un ID vàlid!");
+    // Botó per unir-se
+    document.getElementById('btn-join').onclick = () => {
+        const rId = document.getElementById('friend-id').value.trim();
+        if(!rId) return alert("Posa l'ID de l'amic!");
         
-        statusDisplay.innerText = "Connectant a: " + rId;
+        statusLog.innerText = "CONNECTANT A " + rId + "...";
         conn = peer.connect(rId);
         
         conn.on('open', () => {
-            setupNetworkEvents();
-            startBattle();
+            statusLog.innerText = "CONNECTAT AMB ÈXIT!";
+            setupGameEvents();
+            launchGame();
+        });
+
+        conn.on('error', (err) => {
+            statusLog.innerText = "ERROR AL CONNECTAR: " + err;
         });
     };
 
-    function setupNetworkEvents() {
+    function setupGameEvents() {
         conn.on('data', (data) => {
-            if (data.type === 'move') {
-                enemyMesh.position.set(data.x, data.y, data.z);
+            if(data.type === 'm') {
+                enemy.position.set(data.x, data.y, data.z);
             }
         });
-        conn.on('close', () => {
-            alert("L'amic ha marxat.");
-            location.reload();
-        });
     }
 
-    function startBattle() {
-        document.getElementById('menu').style.display = 'none';
-        isConnected = true;
+    function launchGame() {
+        document.getElementById('overlay').style.display = 'none';
+        isStarted = true;
     }
 
-    // --- LÒGICA 3D (THREE.JS)[cite: 5] ---
+    // --- MOTOR 3D[cite: 5] ---
+    let isStarted = false;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x020205);
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Escenari
-    const grid = new THREE.GridHelper(100, 40, 0xbc13fe, 0x111111);
-    scene.add(grid);
+    scene.add(new THREE.GridHelper(100, 50, 0xbc13fe, 0x222222));
+    const enemy = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({color: 0xff003c}));
+    scene.add(enemy);
 
-    // Enemigo (El teu amic)
-    const enemyGeo = new THREE.BoxGeometry(1, 2, 1);
-    const enemyMat = new THREE.MeshBasicMaterial({ color: 0xff003c });
-    const enemyMesh = new THREE.Mesh(enemyGeo, enemyMat);
-    scene.add(enemyMesh);
+    camera.position.set(Math.random()*10, 2, 15);
 
-    camera.position.set(0, 2, 10);
-
-    // Controls bàsics
     const keys = {};
-    window.onkeydown = (e) => keys[e.code] = true;
-    window.onkeyup = (e) => keys[e.code] = false;
+    window.onkeydown = e => keys[e.code] = true;
+    window.onkeyup = e => keys[e.code] = false;
 
-    function animate() {
-        requestAnimationFrame(animate);
-        
-        if (isConnected) {
-            // Moviment Jugador
-            if (keys['KeyW']) camera.position.z -= 0.15;
-            if (keys['KeyS']) camera.position.z += 0.15;
-            if (keys['KeyA']) camera.position.x -= 0.15;
-            if (keys['KeyD']) camera.position.x += 0.15;
+    function loop() {
+        requestAnimationFrame(loop);
+        if(isStarted) {
+            if(keys['KeyW']) camera.position.z -= 0.15;
+            if(keys['KeyS']) camera.position.z += 0.15;
+            if(keys['KeyA']) camera.position.x -= 0.15;
+            if(keys['KeyD']) camera.position.x += 0.15;
 
-            // Enviar dades al rival[cite: 2]
-            if (conn && conn.open) {
-                conn.send({
-                    type: 'move',
-                    x: camera.position.x,
-                    y: camera.position.y - 1,
-                    z: camera.position.z
-                });
+            if(conn && conn.open) {
+                conn.send({ type: 'm', x: camera.position.x, y: camera.position.y-1, z: camera.position.z });
             }
         }
-
         renderer.render(scene, camera);
     }
-    animate();
 
-    window.onresize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+    // Inicialització forçada al carregar la finestra
+    window.onload = () => {
+        initNetwork();
+        loop();
     };
 </script>
 </body>
