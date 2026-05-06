@@ -2,197 +2,106 @@
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>1v1 NEON FIGHT - ONLINE</title>
+    <title>1v1 FIX - GLITCHBOX</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #020205; font-family: monospace; color: #00f3ff; }
-        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; background: rgba(0,0,0,0.7); padding: 15px; border: 2px solid #bc13fe; border-radius: 8px; }
-        #menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: #000; padding: 30px; border: 3px solid #00f3ff; z-index: 20; }
-        input { padding: 10px; margin: 10px; border: 1px solid #bc13fe; background: #111; color: white; width: 200px; }
-        button { padding: 10px 20px; background: #bc13fe; border: none; color: white; cursor: pointer; font-weight: bold; }
-        #status { color: #f1c40f; margin-top: 10px; }
-        #exit-btn { position: absolute; top: 20px; right: 20px; background: #ff003c; z-index: 10; }
-        canvas { display: block; }
+        body { margin: 0; background: #000; color: #00f3ff; font-family: monospace; overflow: hidden; }
+        #gui { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #bc13fe; }
+        #menu { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+        input { padding: 10px; background: #111; color: #fff; border: 1px solid #00f3ff; margin: 10px; }
+        button { padding: 10px 20px; background: #bc13fe; color: #fff; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <button id="exit-btn" onclick="window.location.href='index.html'">EXIT</button>
+<div id="gui">El teu ID: <b id="my-id">Carregant...</b></div>
 
-    <div id="ui">
-        <div>EL TEU ID: <b id="my-id">...</b></div>
-        <div id="game-stats">VIDA: 100 | KILLS: 0</div>
-    </div>
+<div id="menu" id="setup-menu">
+    <h1>1v1 ONLINE FIX</h1>
+    <p>Dona el teu ID a l'amic o posa el seu:</p>
+    <input type="text" id="remote-id" placeholder="ID de l'amic">
+    <button id="btn-connect">CONNECTAR I JUGAR</button>
+    <p id="status">Esperant sistema...</p>
+</div>
 
-    <div id="menu">
-        <h1>1v1 NEON STRIKE</h1>
-        <p>Comparteix el teu ID amb un amic o posa el seu:</p>
-        <input type="text" id="remote-id" placeholder="ID de l'amic...">
-        <button id="connect-btn">CONNECTAR I JUGAR</button>
-        <div id="status">Esperant que PeerJS s'iniciï...</div>
-    </div>
+<script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-    <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
-    </script>
+    // --- LÒGICA DE XARXA ---
+    const peer = new Peer();
+    let conn;
+    const enemyObj = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 2, 1),
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+    );
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+    peer.on('open', id => {
+        document.getElementById('my-id').innerText = id;
+        document.getElementById('status').innerText = "Llest.";
+    });
 
-        // --- MULTIJUGADOR (PeerJS)[cite: 2] ---
-        const peer = new Peer(); // Utilitza el servidor públic per defecte de PeerJS
-        let conn;
-        const myIdDisplay = document.getElementById('my-id');
-        const statusDisplay = document.getElementById('status');
+    // Quan algú et connecta a tu
+    peer.on('connection', c => {
+        conn = c;
+        setupEvents();
+        document.getElementById('menu').style.display = 'none';
+    });
 
-        peer.on('open', (id) => {
-            myIdDisplay.innerText = id;
-            statusDisplay.innerText = "Llest! Envia el codi al teu amic.";
+    // Quan tu connectes a algú
+    document.getElementById('btn-connect').onclick = () => {
+        const rId = document.getElementById('remote-id').value;
+        conn = peer.connect(rId);
+        conn.on('open', () => {
+            setupEvents();
+            document.getElementById('menu').style.display = 'none';
         });
+    };
 
-        // Cas A: Algú es connecta a tu
-        peer.on('connection', (c) => {
-            conn = c;
-            setupChat();
-            statusDisplay.innerText = "Connectat! Iniciant...";
-            setTimeout(startGame, 1000);
-        });
-
-        // Cas B: Tu et connectes a un amic
-        document.getElementById('connect-btn').onclick = () => {
-            const id = document.getElementById('remote-id').value;
-            if (id) {
-                statusDisplay.innerText = "Connectant a " + id + "...";
-                conn = peer.connect(id);
-                conn.on('open', () => {
-                    setupChat();
-                    statusDisplay.innerText = "Connectat!";
-                    startGame();
-                });
+    function setupEvents() {
+        conn.on('data', data => {
+            if(data.type === 'move') {
+                enemyObj.position.set(data.x, data.y, data.z);
             }
-        };
+        });
+    }
 
-        function setupChat() {
-            conn.on('data', (data) => {
-                if (data.type === 'move') {
-                    enemyPlayer.position.set(data.x, data.y, data.z);
-                    enemyPlayer.rotation.y = data.ry;
-                }
-                if (data.type === 'shoot') {
-                    spawnEnemyBullet(data.pos, data.dir);
-                }
-                if (data.type === 'hit') {
-                    hp -= 20;
-                    updateUI();
-                }
+    // --- LÒGICA 3D ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    scene.add(new THREE.GridHelper(50, 50, 0x00f3ff, 0x222222));
+    scene.add(enemyObj);
+    camera.position.set(0, 2, 5);
+
+    const keys = {};
+    window.onkeydown = e => keys[e.code] = true;
+    window.onkeyup = e => keys[e.code] = false;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // Moviment bàsic
+        if(keys['KeyW']) camera.position.z -= 0.1;
+        if(keys['KeyS']) camera.position.z += 0.1;
+        if(keys['KeyA']) camera.position.x -= 0.1;
+        if(keys['KeyD']) camera.position.x += 0.1;
+
+        // Enviar posició
+        if(conn && conn.open) {
+            conn.send({
+                type: 'move',
+                x: camera.position.x,
+                y: camera.position.y - 1,
+                z: camera.position.z
             });
         }
 
-        // --- CONFIGURACIÓ JOC 3D[cite: 2, 5] ---
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020205);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Terra i Llums
-        const grid = new THREE.GridHelper(100, 20, 0x00f3ff, 0x222222);
-        scene.add(grid);
-        const light = new THREE.PointLight(0xbc13fe, 10, 100);
-        light.position.set(0, 10, 0);
-        scene.add(light);
-
-        // Jugadors
-        const playerGeo = new THREE.BoxGeometry(1, 2, 1);
-        const enemyMat = new THREE.MeshPhongMaterial({ color: 0xff003c, emissive: 0xff003c });
-        const enemyPlayer = new THREE.Mesh(playerGeo, enemyMat);
-        scene.add(enemyPlayer);
-
-        const controls = new PointerLockControls(camera, document.body);
-        let hp = 100;
-        let kills = 0;
-
-        function startGame() {
-            document.getElementById('menu').style.display = 'none';
-            controls.lock();
-        }
-
-        function updateUI() {
-            document.getElementById('game-stats').innerText = `VIDA: ${hp} | KILLS: ${kills}`;
-            if(hp <= 0) {
-                alert("HAS MORT!");
-                location.reload();
-            }
-        }
-
-        // --- DISPARAR I MOVIMENT ---
-        window.addEventListener('mousedown', () => {
-            if (!controls.isLocked || !conn) return;
-            
-            const dir = new THREE.Vector3();
-            camera.getWorldDirection(dir);
-            
-            // Enviem el tret a l'altre jugador
-            conn.send({ type: 'shoot', pos: camera.position, dir: dir });
-
-            // Comprovar si li hem donat (Raycast)
-            const ray = new THREE.Raycaster(camera.position, dir);
-            const intersect = ray.intersectObject(enemyPlayer);
-            if (intersect.length > 0) {
-                conn.send({ type: 'hit' });
-                kills++;
-                updateUI();
-            }
-        });
-
-        function spawnEnemyBullet(pos, dir) {
-            const bGeo = new THREE.SphereGeometry(0.2);
-            const bMat = new THREE.MeshBasicMaterial({ color: 0xff003c });
-            const bullet = new THREE.Mesh(bGeo, bMat);
-            bullet.position.copy(pos);
-            scene.add(bullet);
-            
-            // Animació simple de la bala enemiga
-            const v = new THREE.Vector3(dir.x, dir.y, dir.z).multiplyScalar(0.5);
-            const interval = setInterval(() => {
-                bullet.position.add(v);
-                if (bullet.position.distanceTo(camera.position) < 1) {
-                    clearInterval(interval);
-                    scene.remove(bullet);
-                }
-            }, 16);
-            setTimeout(() => { clearInterval(interval); scene.remove(bullet); }, 2000);
-        }
-
-        // Bucle d'animació
-        const move = { w: false, a: false, s: false, d: false };
-        document.addEventListener('keydown', (e) => { if(e.code in {KeyW:1, KeyA:1, KeyS:1, KeyD:1}) move[e.code[3].toLowerCase()] = true; });
-        document.addEventListener('keyup', (e) => { if(e.code in {KeyW:1, KeyA:1, KeyS:1, KeyD:1}) move[e.code[3].toLowerCase()] = false; });
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (controls.isLocked) {
-                if (move.w) controls.moveForward(0.15);
-                if (move.s) controls.moveForward(-0.15);
-                if (move.a) controls.moveRight(-0.15);
-                if (move.d) controls.moveRight(0.15);
-
-                // Enviar posició al rival[cite: 2]
-                if (conn && conn.open) {
-                    conn.send({
-                        type: 'move',
-                        x: camera.position.x,
-                        y: camera.position.y - 1,
-                        z: camera.position.z,
-                        ry: camera.rotation.y
-                    });
-                }
-            }
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
+        renderer.render(scene, camera);
+    }
+    animate();
+</script>
 </body>
 </html>
