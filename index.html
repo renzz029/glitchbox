@@ -1,139 +1,511 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>renz029_GlitchBox</title>
-    <style>
-        :root {
-            --led-purple: #bc13fe;
-            --led-cyan: #00f3ff;
-            --led-red: #ff003c;
-            --led-gold: #f1c40f;
-            --led-green: #39ff14;
-            --bg-obsidian: #020205;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RENZ029_GLITCHBOX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
-        body {
-            background-color: var(--bg-obsidian);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
+:root {
+  --purple: #bc13fe;
+  --cyan: #00f3ff;
+  --red: #ff003c;
+  --gold: #f1c40f;
+  --green: #39ff14;
+  --bg: #07070f;
+  --card: #0d0d1a;
+  --border: rgba(255,255,255,0.07);
+}
 
-        .header { text-align: center; margin-bottom: 40px; }
-        h1 { 
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            letter-spacing: 8px; 
-            margin: 0; 
-            text-transform: uppercase;
-            text-shadow: 0 0 15px var(--led-purple);
-        }
-        .cyan-text { color: var(--led-cyan); text-shadow: 0 0 15px var(--led-cyan); }
-        .subtitle { font-family: monospace; color: #555; letter-spacing: 5px; font-size: 14px; margin-top: 10px; text-transform: uppercase; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        /* Grid de jocs actualitzat */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
-            max-width: 1000px; 
-            margin-bottom: 40px; 
-        }
-        
-        .box {
-            width: 300px;
-            height: 180px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: 0.3s;
-            border: 2px solid #222;
-            background: rgba(255,255,255,0.02);
-        }
+body {
+  background: var(--bg);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-        .box:hover { transform: translateY(-5px); }
-        
-        /* Estils per joc */
-        .box-snake { border-color: var(--led-purple); box-shadow: inset 0 0 10px rgba(188,19,254,0.1); }
-        .box-fight { border-color: var(--led-red); box-shadow: inset 0 0 10px rgba(255,0,60,0.1); }
-        .box-money { border-color: var(--led-gold); box-shadow: inset 0 0 10px rgba(241,196,15,0.1); }
-        .box-obby { border-color: var(--led-green); box-shadow: inset 0 0 10px rgba(57,255,20,0.1); }
-        .box-clicker { border-color: var(--led-cyan); box-shadow: inset 0 0 10px rgba(0,243,255,0.1); }
+/* ── FONS ANIMAT ── */
+body::before {
+  content:'';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(188,19,254,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 90%, rgba(0,243,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-        .box h2 { color: white; margin: 10px 0 5px 0; letter-spacing: 2px; font-size: 18px; text-transform: uppercase; }
-        .emoji { font-size: 45px; }
-        .status-dot { font-size: 10px; font-family: monospace; letter-spacing: 1px; margin-bottom: 5px; }
+.scanlines {
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none; z-index: 0;
+}
 
-        /* Footer */
-        .user-info { font-family: monospace; color: #444; font-size: 11px; letter-spacing: 2px; margin-bottom: 15px; }
-        .views-container { border: 2px solid var(--led-purple); padding: 10px 40px; border-radius: 10px; background: black; box-shadow: 0 0 15px var(--led-purple); text-align: center; }
-        .views-label { color: var(--led-purple); font-family: monospace; font-size: 10px; letter-spacing: 3px; display: block; }
-        .views-number { color: white; font-size: 20px; font-weight: bold; font-family: monospace; }
-    </style>
+/* ── NAVBAR ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 60px;
+  background: rgba(7,7,15,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 15px; font-weight: 900;
+  letter-spacing: 3px; color: white;
+}
+.nav-logo span { color: var(--cyan); }
+
+.nav-tag {
+  font-size: 11px; color: #444;
+  letter-spacing: 2px; font-family: monospace;
+}
+
+.nav-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--green);
+  font-family: monospace; letter-spacing: 1px;
+}
+.nav-dot::before {
+  content:''; width:7px; height:7px; border-radius:50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 64px 20px 40px;
+}
+
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(32px, 6vw, 68px);
+  font-weight: 900;
+  letter-spacing: 6px;
+  line-height: 1.1;
+  color: white;
+  text-shadow: 0 0 40px rgba(188,19,254,0.4);
+}
+.hero-title .glitch-cyan { color: var(--cyan); text-shadow: 0 0 30px var(--cyan); }
+
+.hero-sub {
+  margin-top: 14px;
+  font-size: 12px; color: #444;
+  letter-spacing: 5px; font-family: monospace;
+}
+
+/* ── SEARCH BAR ── */
+.search-wrap {
+  position: relative; z-index: 1;
+  display: flex; justify-content: center;
+  padding: 0 20px 48px;
+}
+.search-bar {
+  width: 100%; max-width: 480px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px 12px 44px;
+  color: white; font-size: 14px; outline: none;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-bar::placeholder { color: #333; }
+.search-bar:focus { border-color: rgba(188,19,254,0.5); box-shadow: 0 0 20px rgba(188,19,254,0.1); }
+.search-icon {
+  position: absolute; left: calc(50% - 220px); top: 50%; transform: translateY(-50%);
+  font-size: 16px; pointer-events: none;
+}
+
+/* ── GRID DE JOCS ── */
+.section-label {
+  position: relative; z-index: 1;
+  padding: 0 32px 20px;
+  font-size: 11px; color: #444; letter-spacing: 4px;
+  font-family: monospace; text-transform: uppercase;
+}
+
+.games-grid {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 0 24px 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── GAME CARD ── */
+.game-card {
+  position: relative;
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  text-decoration: none;
+  display: flex; flex-direction: column;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.game-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Thumbnail */
+.card-thumb {
+  height: 160px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  font-size: 72px;
+}
+.card-thumb::after {
+  content:''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, var(--card) 100%);
+}
+
+/* Glow per color */
+.card-snake  { border-color: rgba(188,19,254,0.35); } .card-snake:hover  { border-color: var(--purple); box-shadow: 0 8px 40px rgba(188,19,254,0.2); }
+.card-fight  { border-color: rgba(255,0,60,0.35);   } .card-fight:hover  { border-color: var(--red);    box-shadow: 0 8px 40px rgba(255,0,60,0.2);   }
+.card-money  { border-color: rgba(241,196,15,0.35); } .card-money:hover  { border-color: var(--gold);   box-shadow: 0 8px 40px rgba(241,196,15,0.2); }
+.card-obby   { border-color: rgba(57,255,20,0.35);  } .card-obby:hover   { border-color: var(--green);  box-shadow: 0 8px 40px rgba(57,255,20,0.2);  }
+.card-clicker{ border-color: rgba(0,243,255,0.35);  } .card-clicker:hover{ border-color: var(--cyan);   box-shadow: 0 8px 40px rgba(0,243,255,0.2);  }
+
+.thumb-snake   { background: radial-gradient(circle at 50% 60%, rgba(188,19,254,0.25), #0a0010); }
+.thumb-fight   { background: radial-gradient(circle at 50% 60%, rgba(255,0,60,0.25), #0d0005);  }
+.thumb-money   { background: radial-gradient(circle at 50% 60%, rgba(241,196,15,0.25), #0d0a00); }
+.thumb-obby    { background: radial-gradient(circle at 50% 60%, rgba(57,255,20,0.20), #040d02);  }
+.thumb-clicker { background: radial-gradient(circle at 50% 60%, rgba(0,243,255,0.20), #000d0f);  }
+
+/* Info */
+.card-info { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-title { font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: white; }
+.card-badge {
+  font-size: 9px; font-family: monospace; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 20px; font-weight: 600;
+  white-space: nowrap;
+}
+.badge-online  { background: rgba(57,255,20,0.12); color: var(--green); border: 1px solid rgba(57,255,20,0.3); }
+.badge-p2p     { background: rgba(0,243,255,0.12); color: var(--cyan);  border: 1px solid rgba(0,243,255,0.3); }
+.badge-solo    { background: rgba(255,255,255,0.05); color: #666;       border: 1px solid rgba(255,255,255,0.1); }
+
+.card-desc { font-size: 12px; color: #555; line-height: 1.5; }
+
+.card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-genre { font-size: 10px; color: #383838; letter-spacing: 1px; font-family: monospace; }
+.card-play {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  padding: 6px 14px; border-radius: 6px; border: none;
+  cursor: pointer; font-family: monospace; transition: 0.2s;
+}
+.play-snake   { background: rgba(188,19,254,0.15); color: var(--purple); } .card-snake:hover  .play-snake   { background: var(--purple); color: white; }
+.play-fight   { background: rgba(255,0,60,0.15);   color: var(--red);    } .card-fight:hover  .play-fight   { background: var(--red);    color: white; }
+.play-money   { background: rgba(241,196,15,0.15); color: var(--gold);   } .card-money:hover  .play-money   { background: var(--gold);   color: black; }
+.play-obby    { background: rgba(57,255,20,0.15);  color: var(--green);  } .card-obby:hover   .play-obby    { background: var(--green);  color: black; }
+.play-clicker { background: rgba(0,243,255,0.15);  color: var(--cyan);   } .card-clicker:hover .play-clicker { background: var(--cyan);   color: black; }
+
+/* ── FEATURED (card gran) ── */
+.featured-wrap {
+  position: relative; z-index: 1;
+  padding: 0 24px 24px;
+  max-width: 1400px; margin: 0 auto;
+}
+.featured-card {
+  background: var(--card);
+  border: 1px solid rgba(255,0,60,0.4);
+  border-radius: 16px; overflow: hidden;
+  display: grid; grid-template-columns: 1fr 1fr;
+  text-decoration: none; color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 30px rgba(255,0,60,0.1);
+}
+.featured-card:hover { transform: translateY(-3px); box-shadow: 0 12px 50px rgba(255,0,60,0.25); }
+.featured-thumb {
+  height: 200px; font-size: 100px;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 60%, rgba(255,0,60,0.3), #0d0005);
+  position: relative;
+}
+.featured-label {
+  position: absolute; top: 12px; left: 12px;
+  font-size: 9px; font-family: monospace; letter-spacing: 2px;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(255,0,60,0.2); color: var(--red); border: 1px solid rgba(255,0,60,0.4);
+}
+.featured-body { padding: 28px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.featured-body h2 { font-family: 'Orbitron', monospace; font-size: 20px; letter-spacing: 3px; }
+.featured-body p { font-size: 13px; color: #555; line-height: 1.6; }
+.featured-play {
+  display: inline-block; margin-top: 4px;
+  background: var(--red); color: white;
+  padding: 10px 24px; border-radius: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 2px; font-family: monospace;
+  transition: 0.2s; align-self: flex-start;
+}
+.featured-play:hover { background: #ff3366; box-shadow: 0 0 20px rgba(255,0,60,0.5); }
+
+/* ── FOOTER / VIEWS ── */
+footer {
+  position: relative; z-index: 1;
+  padding: 48px 24px 32px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+}
+
+.footer-user { font-family: monospace; font-size: 11px; color: #2a2a2a; letter-spacing: 3px; }
+
+.views-panel {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
+  background: #0a0a14;
+  border: 1px solid var(--purple);
+  border-radius: 12px;
+  padding: 16px 40px;
+  box-shadow: 0 0 30px rgba(188,19,254,0.15), inset 0 0 30px rgba(188,19,254,0.03);
+}
+.views-label { font-family: monospace; font-size: 10px; letter-spacing: 4px; color: var(--purple); }
+.views-count {
+  font-family: 'Orbitron', monospace; font-size: 30px; font-weight: 900;
+  color: white; letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(188,19,254,0.5);
+  min-width: 80px; text-align: center;
+}
+.views-sub { font-size: 10px; color: #333; letter-spacing: 2px; font-family: monospace; }
+
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 11px; color: #333; text-decoration: none; letter-spacing: 1px; font-family: monospace; transition: color 0.2s; }
+.footer-links a:hover { color: var(--purple); }
+
+/* ── NO RESULTS ── */
+#no-results { display: none; text-align: center; padding: 40px; color: #333; font-family: monospace; letter-spacing: 2px; z-index: 1; position: relative; }
+</style>
 </head>
 <body>
+<div class="scanlines"></div>
 
-    <div class="header">
-        <h1>RENZ029_<span class="cyan-text">GLITCHBOX</span></h1>
-        <div class="subtitle">SYSTEM INTERFACE // READY_TO_PLAY</div>
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">RENZ029_<span>GLITCHBOX</span></div>
+  <div class="nav-tag">v3.0 // SYSTEM_ACTIVE</div>
+  <div class="nav-dot">ONLINE</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 class="hero-title">RENZ029_<span class="glitch-cyan">GLITCHBOX</span></h1>
+  <div class="hero-sub">ARCADE SYSTEM // 5 GAMES LOADED // READY_TO_PLAY</div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input class="search-bar" id="search" type="text" placeholder="Busca un joc..." oninput="filterGames()">
+</div>
+
+<!-- FEATURED -->
+<div class="featured-wrap" id="featured-wrap">
+  <div class="section-label">⭐ DESTACAT</div>
+  <a href="fightv3.html" class="featured-card">
+    <div class="featured-thumb">
+      🔫
+      <div class="featured-label">★ FEATURED</div>
     </div>
-
-    <div class="grid">
-        <a href="snakev3.html" class="box box-snake">
-            <span class="emoji">🐍</span>
-            <h2>SNAKE LED</h2>
-            <div class="status-dot" style="color:var(--led-purple)">● ONLINE</div>
-        </a>
-        <a href="fightv3.html" class="box box-fight">
-            <span class="emoji">🔫</span>
-            <h2>1v1 FIGHT</h2>
-            <div class="status-dot" style="color:var(--led-red)">● READY</div>
-        </a>
-        <a href="money.html" class="box box-money">
-            <span class="emoji">💰</span>
-            <h2>MONEY TYCOON</h2>
-            <div class="status-dot" style="color:var(--led-gold)">● CONNECTED</div>
-        </a>
-        <a href="obbyv3.html" class="box box-obby">
-            <span class="emoji">🏃</span>
-            <h2>PARKOUR OBBY</h2>
-            <div class="status-dot" style="color:var(--led-green)">● LOADED</div>
-        </a>
-        <a href="clickerv3.html" class="box box-clicker">
-            <span class="emoji">💀</span>
-            <h2>SKULL CLICKER</h2>
-            <div class="status-dot" style="color:var(--led-cyan)">● SYNCED</div>
-        </a>
+    <div class="featured-body">
+      <div style="font-size:10px;color:var(--red);letter-spacing:3px;font-family:monospace">1v1 SHOOTER</div>
+      <h2>1v1 FIGHT</h2>
+      <p>Shooter 3D en primera persona. Connecta amb el teu amic via PeerJS i lluita en un mapa amb obstacles fins que un de vosaltres quedi en peu.</p>
+      <div class="featured-play">▶ JUGAR ARA</div>
     </div>
+  </a>
+</div>
 
-    <div class="user-info">USER: RENZ029 | STATUS: STABLE</div>
+<!-- GRID -->
+<div style="position:relative;z-index:1;padding:24px 24px 0;max-width:1400px;margin:0 auto">
+  <div class="section-label" style="padding:0 8px 20px">🎮 TOTS ELS JOCS</div>
+</div>
 
-    <div class="views-container">
-        <span class="views-label">SYSTEM VIEWS</span>
-        <div id="count" class="views-number">000</div>
+<div class="games-grid" id="games-grid">
+
+  <!-- SNAKE -->
+  <a href="snakev3.html" class="game-card card-snake" data-name="snake led serpent">
+    <div class="card-thumb thumb-snake">🐍</div>
+    <div class="card-info">
+      <div class="card-top">
+        <div class="card-title">SNAKE LED</div>
+        <div class="card-badge badge-solo">SOLO</div>
+      </div>
+      <div class="card-desc">Clàssic Snake en mode neó. Recull granotes, activa el turbo i sobreviu tant com puguis.</div>
+      <div class="card-footer">
+        <div class="card-genre">ARCADE · CLÀSSIC</div>
+        <button class="card-play play-snake">▶ PLAY</button>
+      </div>
     </div>
+  </a>
 
-    <script>
-        async function loadViews() {
-            try {
-                const response = await fetch('https://api.counterapi.dev/v1/renzz029/glitchbox/up');
-                const data = await response.json();
-                if(data.count) {
-                    document.getElementById('count').innerText = data.count.toString().padStart(3, '0');
-                }
-            } catch (e) {}
-        }
-        loadViews();
-    </script>
+  <!-- MONEY -->
+  <a href="money.html" class="game-card card-money" data-name="money tycoon fortune casino slot">
+    <div class="card-thumb thumb-money">💰</div>
+    <div class="card-info">
+      <div class="card-top">
+        <div class="card-title">MONEY TYCOON</div>
+        <div class="card-badge badge-solo">SOLO</div>
+      </div>
+      <div class="card-desc">Fes créixer el teu imperi digital. Compra upgrades, gestiona ingressos i arrisca-ho tot a la slot machine.</div>
+      <div class="card-footer">
+        <div class="card-genre">IDLE · CASINO</div>
+        <button class="card-play play-money">▶ PLAY</button>
+      </div>
+    </div>
+  </a>
+
+  <!-- OBBY -->
+  <a href="obbyv3.html" class="game-card card-obby" data-name="obby parkour 3d saltar plataformes">
+    <div class="card-thumb thumb-obby">🏃</div>
+    <div class="card-info">
+      <div class="card-top">
+        <div class="card-title">PARKOUR OBBY</div>
+        <div class="card-badge badge-p2p">P2P ONLINE</div>
+      </div>
+      <div class="card-desc">300 plataformes de parkour en 3D. Crea una sala i juga amb un amic en temps real via P2P.</div>
+      <div class="card-footer">
+        <div class="card-genre">PLATAFORMES · 3D</div>
+        <button class="card-play play-obby">▶ PLAY</button>
+      </div>
+    </div>
+  </a>
+
+  <!-- CLICKER -->
+  <a href="clickerv3.html" class="game-card card-clicker" data-name="clicker skull miner idle">
+    <div class="card-thumb thumb-clicker">💀</div>
+    <div class="card-info">
+      <div class="card-top">
+        <div class="card-title">SKULL MINER</div>
+        <div class="card-badge badge-solo">SOLO</div>
+      </div>
+      <div class="card-desc">Clicker incremental estil hacker. Compra hardware, desbloqueja skins i automatitza els teus guanys.</div>
+      <div class="card-footer">
+        <div class="card-genre">CLICKER · IDLE</div>
+        <button class="card-play play-clicker">▶ PLAY</button>
+      </div>
+    </div>
+  </a>
+
+  <!-- FIGHT -->
+  <a href="fightv3.html" class="game-card card-fight" data-name="fight 1v1 shooter fps pistol">
+    <div class="card-thumb thumb-fight">🔫</div>
+    <div class="card-info">
+      <div class="card-top">
+        <div class="card-title">1v1 FIGHT</div>
+        <div class="card-badge badge-p2p">P2P ONLINE</div>
+      </div>
+      <div class="card-desc">FPS minimalista. Connecta amb un amic, agafa la pistola o la SMG i elimina'l abans que ell t'elimini a tu.</div>
+      <div class="card-footer">
+        <div class="card-genre">FPS · 1v1</div>
+        <button class="card-play play-fight">▶ PLAY</button>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<div id="no-results">CAP JOC TROBAT // TRY AGAIN</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-user">USER: RENZ029 // STATUS: STABLE // SYSTEM: v3.0</div>
+
+  <div class="views-panel">
+    <div class="views-label">⚡ SYSTEM VIEWS</div>
+    <div class="views-count" id="views-count">···</div>
+    <div class="views-sub">VISITES TOTALS · S'ACTUALITZA EN TEMPS REAL</div>
+  </div>
+
+  <div class="footer-links">
+    <a href="snakev3.html">SNAKE</a>
+    <a href="fightv3.html">FIGHT</a>
+    <a href="money.html">MONEY</a>
+    <a href="obbyv3.html">OBBY</a>
+    <a href="clickerv3.html">CLICKER</a>
+  </div>
+
+  <div style="font-size:10px;color:#1a1a1a;font-family:monospace;letter-spacing:1px">
+    RENZ029_GLITCHBOX © 2025 // ALL RIGHTS RESERVED
+  </div>
+</footer>
+
+<script>
+// ── VIEWS COUNTER (persistent via counterapi.dev) ──
+async function loadAndIncrementViews() {
+  const el = document.getElementById('views-count');
+  try {
+    const res = await fetch('https://api.counterapi.dev/v1/renz029/glitchbox-v3/up');
+    const data = await res.json();
+    if (data && data.count !== undefined) {
+      animateCount(el, data.count);
+    } else {
+      el.textContent = '???';
+    }
+  } catch(e) {
+    el.textContent = 'N/A';
+  }
+}
+
+function animateCount(el, target) {
+  const str = target.toString().padStart(4, '0');
+  let i = 0;
+  const interval = setInterval(() => {
+    el.textContent = str.split('').map((c, idx) =>
+      idx < i ? c : Math.floor(Math.random()*10)
+    ).join('');
+    i++;
+    if (i > str.length) { el.textContent = str; clearInterval(interval); }
+  }, 60);
+}
+
+loadAndIncrementViews();
+
+// ── SEARCH / FILTER ──
+function filterGames() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.game-card');
+  const featured = document.getElementById('featured-wrap');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const name = card.dataset.name || '';
+    const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+    const match = name.includes(q) || title.includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+
+  document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+  featured.style.display = q ? 'none' : '';
+}
+
+// ── CLICK A CARD ──
+document.querySelectorAll('.game-card').forEach(card => {
+  card.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') return; // el botó ja fa el link
+    // la <a> ja gestiona el click
+  });
+});
+</script>
 </body>
 </html>
