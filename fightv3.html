@@ -1,232 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>GLITCHOPS | 1v1 Fight</title>
+    <title>1v1 NEON FIGHT - ONLINE</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #eee; font-family: 'Arial Black', sans-serif; }
-        #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
-        #stats { position: absolute; top: 20px; left: 20px; color: #000; background: rgba(255,255,255,0.8); padding: 10px; border: 2px solid #000; }
-        #ammo-display { position: absolute; bottom: 30px; right: 40px; color: #f00; font-size: 50px; text-shadow: 2px 2px #000; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 15px; height: 15px; transform: translate(-50%, -50%); border: 2px solid red; border-radius: 50%; }
-        #respawn-timer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 40px; text-align: center; display: none; background: rgba(0,0,0,0.8); padding: 20px; z-index: 200; width: 100%; }
-        
-        #pause-menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 300; }
-        #pause-menu h2 { color: #fff; font-size: 50px; margin-bottom: 20px; }
-
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; z-index: 100; text-align: center; }
-        #my-id { font-weight: bold; color: #f00; font-size: 28px; margin: 20px; padding: 15px; border: 3px dashed #000; background: #f9f9f9; }
-        input { padding: 15px; font-size: 18px; text-align: center; border: 2px solid #000; width: 350px; margin: 10px; }
-        button { background: #000; color: #fff; border: none; padding: 15px 40px; font-size: 18px; cursor: pointer; margin: 10px; }
-        button:hover { background: #f00; }
+        body { margin: 0; overflow: hidden; background: #020205; font-family: monospace; color: #00f3ff; }
+        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; background: rgba(0,0,0,0.7); padding: 15px; border: 2px solid #bc13fe; border-radius: 8px; }
+        #menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: #000; padding: 30px; border: 3px solid #00f3ff; z-index: 20; }
+        input { padding: 10px; margin: 10px; border: 1px solid #bc13fe; background: #111; color: white; width: 200px; }
+        button { padding: 10px 20px; background: #bc13fe; border: none; color: white; cursor: pointer; font-weight: bold; }
+        #status { color: #f1c40f; margin-top: 10px; }
+        #exit-btn { position: absolute; top: 20px; right: 20px; background: #ff003c; z-index: 10; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
 
-    <div id="lobby" class="overlay">
-        <h1 style="font-size: 45px;">1v1 FIGHT</h1>
-        <p>SEND YOUR ID TO YOUR FRIENDS:</p>
-        <div id="my-id">GENERATING...</div>
-        <p>OR PASTE YOUR FRIEND'S ID:</p>
-        <input type="text" id="join-id" placeholder="PASTE ID HERE">
-        <br>
-        <button onclick="connectToFriend()">CONNECT</button>
-        <button id="start-btn" style="display:none; background: #f00;" onclick="startGame()">START MATCH</button>
+    <button id="exit-btn" onclick="window.location.href='index.html'">EXIT</button>
+
+    <div id="ui">
+        <div>EL TEU ID: <b id="my-id">...</b></div>
+        <div id="game-stats">VIDA: 100 | KILLS: 0</div>
     </div>
 
-    <div id="pause-menu">
-        <h2>PAUSED</h2>
-        <button onclick="resumeGame()">RESUME</button>
-        <button onclick="exitToMenu()" style="background: #555;">EXIT TO MENU</button>
+    <div id="menu">
+        <h1>1v1 NEON STRIKE</h1>
+        <p>Comparteix el teu ID amb un amic o posa el seu:</p>
+        <input type="text" id="remote-id" placeholder="ID de l'amic...">
+        <button id="connect-btn">CONNECTAR I JUGAR</button>
+        <div id="status">Esperant que PeerJS s'iniciï...</div>
     </div>
 
-    <div id="respawn-timer">YOU DIED!<br>RESPAWNING IN <span id="seconds">10</span>s</div>
-
-    <div id="hud">
-        <div id="stats">HP: <span id="hp">100</span> | <span id="w-name">PISTOL</span></div>
-        <div id="crosshair"></div>
-        <div id="ammo-display">15 / 15</div>
-    </div>
-
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } } </script>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
 
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
 
-        let peer, conn, otherPlayer;
-        let health = 100, selectedWep = 1, ammo = 15, shootInterval, isDead = false;
-        const weapons = { 1: { name: "PISTOL", ammo: 15 }, 2: { name: "MICRO SMG", ammo: 30 } };
+        // --- MULTIJUGADOR (PeerJS)[cite: 2] ---
+        const peer = new Peer(); // Utilitza el servidor públic per defecte de PeerJS
+        let conn;
+        const myIdDisplay = document.getElementById('my-id');
+        const statusDisplay = document.getElementById('status');
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xa0d8ef);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        const controls = new PointerLockControls(camera, document.body);
-        const raycaster = new THREE.Raycaster();
-
-        // --- PARETS (OBSTACLES) ---
-        const walls = [];
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-
-        function createWall(w, h, d, x, z) {
-            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
-            mesh.position.set(x, h/2, z);
-            scene.add(mesh);
-            walls.push(new THREE.Box3().setFromObject(mesh));
-        }
-
-        // El bloc negre central
-        createWall(12, 5, 12, 0, 0);
-        // Alguns blocs extra de decoració/cobertura
-        createWall(4, 3, 4, 15, -15);
-        createWall(4, 3, 4, -15, 15);
-
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0xdddddd }));
-        floor.rotation.x = -Math.PI / 2;
-        scene.add(floor);
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-
-        // --- ALTRES ---
-        otherPlayer = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.5), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
-        body.position.y = 0.9;
-        otherPlayer.add(body);
-        otherPlayer.visible = false;
-        scene.add(otherPlayer);
-
-        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.5), new THREE.MeshStandardMaterial({ color: 0x000000 }));
-        gun.position.set(0.4, -0.3, -0.6);
-        camera.add(gun);
-        scene.add(camera);
-
-        // --- SISTEMA DE COL·LISIÓ ---
-        function checkCollision(nextPos) {
-            const playerBox = new THREE.Box3().setFromCenterAndSize(
-                nextPos, 
-                new THREE.Vector3(0.8, 1.8, 0.8)
-            );
-            for (let wall of walls) {
-                if (playerBox.intersectsBox(wall)) return true;
-            }
-            return false;
-        }
-
-        // --- MENÚS ---
-        controls.addEventListener('unlock', () => {
-            if (!isDead && document.getElementById('lobby').style.display === 'none') {
-                document.getElementById('pause-menu').style.display = 'flex';
-            }
+        peer.on('open', (id) => {
+            myIdDisplay.innerText = id;
+            statusDisplay.innerText = "Llest! Envia el codi al teu amic.";
         });
 
-        window.resumeGame = () => {
-            document.getElementById('pause-menu').style.display = 'none';
-            controls.lock();
+        // Cas A: Algú es connecta a tu
+        peer.on('connection', (c) => {
+            conn = c;
+            setupChat();
+            statusDisplay.innerText = "Connectat! Iniciant...";
+            setTimeout(startGame, 1000);
+        });
+
+        // Cas B: Tu et connectes a un amic
+        document.getElementById('connect-btn').onclick = () => {
+            const id = document.getElementById('remote-id').value;
+            if (id) {
+                statusDisplay.innerText = "Connectant a " + id + "...";
+                conn = peer.connect(id);
+                conn.on('open', () => {
+                    setupChat();
+                    statusDisplay.innerText = "Connectat!";
+                    startGame();
+                });
+            }
         };
 
-        window.exitToMenu = () => { window.location.href = 'index.html'; };
-
-        function spawn(isHost) {
-            isDead = false; health = 100;
-            document.getElementById('hp').innerText = health;
-            document.getElementById('respawn-timer').style.display = 'none';
-            if (isHost) camera.position.set(30, 1.8, 30);
-            else camera.position.set(-30, 1.8, -30);
-            camera.lookAt(0, 1.8, 0);
-            controls.lock();
-        }
-
-        function die() {
-            isDead = true; controls.unlock();
-            document.getElementById('respawn-timer').style.display = 'block';
-            let timer = 10;
-            const int = setInterval(() => {
-                timer--; document.getElementById('seconds').innerText = timer;
-                if (timer <= 0) { clearInterval(int); spawn(peer.id === document.getElementById('my-id').innerText); }
-            }, 1000);
-        }
-
-        // --- COMBAT ---
-        function shoot() {
-            if (isDead || ammo <= 0 || !controls.isLocked) return;
-            ammo--;
-            document.getElementById('ammo-display').innerText = `${ammo} / ${weapons[selectedWep].ammo}`;
-            const laser = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 40), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-            const wp = new THREE.Vector3(); gun.getWorldPosition(wp);
-            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-            laser.position.copy(wp); laser.lookAt(wp.clone().add(dir));
-            scene.add(laser); setTimeout(() => scene.remove(laser), 50);
-            raycaster.setFromCamera({x: 0, y: 0}, camera);
-            const hit = raycaster.intersectObjects([otherPlayer, ...scene.children.filter(c => c.geometry instanceof THREE.BoxGeometry && c !== floor)], true);
-            if (hit.length > 0 && hit[0].object.parent === otherPlayer && conn) conn.send({ type: 'hit', dmg: 15 });
-        }
-
-        window.addEventListener('mousedown', () => {
-            if (!controls.isLocked || isDead) return;
-            shoot();
-            if (selectedWep === 2) shootInterval = setInterval(shoot, 150);
-        });
-        window.addEventListener('mouseup', () => clearInterval(shootInterval));
-
-        const keys = {};
-        window.addEventListener('keydown', e => {
-            keys[e.code] = true;
-            if (e.key === '1' || e.key === '2') {
-                selectedWep = parseInt(e.key);
-                ammo = weapons[selectedWep].ammo;
-                document.getElementById('w-name').innerText = weapons[selectedWep].name;
-            }
-            if (e.key.toLowerCase() === 'r') ammo = weapons[selectedWep].ammo;
-        });
-        window.addEventListener('keyup', e => keys[e.code] = false);
-
-        // --- NETWORK ---
-        peer = new Peer();
-        peer.on('open', id => document.getElementById('my-id').innerText = id);
-        window.connectToFriend = () => { conn = peer.connect(document.getElementById('join-id').value); setupConn(); };
-        peer.on('connection', c => { conn = c; setupConn(); document.getElementById('start-btn').style.display = 'block'; });
-
-        function setupConn() {
-            conn.on('data', data => {
-                if (data.type === 'start') startGame(false);
+        function setupChat() {
+            conn.on('data', (data) => {
                 if (data.type === 'move') {
-                    otherPlayer.visible = true;
-                    otherPlayer.position.set(data.pos.x, data.pos.y - 1.8, data.pos.z);
-                    otherPlayer.rotation.y = data.rot;
+                    enemyPlayer.position.set(data.x, data.y, data.z);
+                    enemyPlayer.rotation.y = data.ry;
                 }
-                if (data.type === 'hit' && !isDead) {
-                    health -= data.dmg; document.getElementById('hp').innerText = health;
-                    if (health <= 0) die();
+                if (data.type === 'shoot') {
+                    spawnEnemyBullet(data.pos, data.dir);
+                }
+                if (data.type === 'hit') {
+                    hp -= 20;
+                    updateUI();
                 }
             });
         }
 
-        window.startGame = (host = true) => {
-            if (host && conn) conn.send({ type: 'start' });
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById('hud').style.display = 'block';
-            spawn(host);
-            setInterval(() => { if(conn && conn.open) conn.send({ type: 'move', pos: camera.position, rot: camera.rotation.y }); }, 30);
-        };
+        // --- CONFIGURACIÓ JOC 3D[cite: 2, 5] ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020205);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Terra i Llums
+        const grid = new THREE.GridHelper(100, 20, 0x00f3ff, 0x222222);
+        scene.add(grid);
+        const light = new THREE.PointLight(0xbc13fe, 10, 100);
+        light.position.set(0, 10, 0);
+        scene.add(light);
+
+        // Jugadors
+        const playerGeo = new THREE.BoxGeometry(1, 2, 1);
+        const enemyMat = new THREE.MeshPhongMaterial({ color: 0xff003c, emissive: 0xff003c });
+        const enemyPlayer = new THREE.Mesh(playerGeo, enemyMat);
+        scene.add(enemyPlayer);
+
+        const controls = new PointerLockControls(camera, document.body);
+        let hp = 100;
+        let kills = 0;
+
+        function startGame() {
+            document.getElementById('menu').style.display = 'none';
+            controls.lock();
+        }
+
+        function updateUI() {
+            document.getElementById('game-stats').innerText = `VIDA: ${hp} | KILLS: ${kills}`;
+            if(hp <= 0) {
+                alert("HAS MORT!");
+                location.reload();
+            }
+        }
+
+        // --- DISPARAR I MOVIMENT ---
+        window.addEventListener('mousedown', () => {
+            if (!controls.isLocked || !conn) return;
+            
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            
+            // Enviem el tret a l'altre jugador
+            conn.send({ type: 'shoot', pos: camera.position, dir: dir });
+
+            // Comprovar si li hem donat (Raycast)
+            const ray = new THREE.Raycaster(camera.position, dir);
+            const intersect = ray.intersectObject(enemyPlayer);
+            if (intersect.length > 0) {
+                conn.send({ type: 'hit' });
+                kills++;
+                updateUI();
+            }
+        });
+
+        function spawnEnemyBullet(pos, dir) {
+            const bGeo = new THREE.SphereGeometry(0.2);
+            const bMat = new THREE.MeshBasicMaterial({ color: 0xff003c });
+            const bullet = new THREE.Mesh(bGeo, bMat);
+            bullet.position.copy(pos);
+            scene.add(bullet);
+            
+            // Animació simple de la bala enemiga
+            const v = new THREE.Vector3(dir.x, dir.y, dir.z).multiplyScalar(0.5);
+            const interval = setInterval(() => {
+                bullet.position.add(v);
+                if (bullet.position.distanceTo(camera.position) < 1) {
+                    clearInterval(interval);
+                    scene.remove(bullet);
+                }
+            }, 16);
+            setTimeout(() => { clearInterval(interval); scene.remove(bullet); }, 2000);
+        }
+
+        // Bucle d'animació
+        const move = { w: false, a: false, s: false, d: false };
+        document.addEventListener('keydown', (e) => { if(e.code in {KeyW:1, KeyA:1, KeyS:1, KeyD:1}) move[e.code[3].toLowerCase()] = true; });
+        document.addEventListener('keyup', (e) => { if(e.code in {KeyW:1, KeyA:1, KeyS:1, KeyD:1}) move[e.code[3].toLowerCase()] = false; });
 
         function animate() {
             requestAnimationFrame(animate);
-            if (controls.isLocked && !isDead) {
-                const speed = keys['ShiftLeft'] ? 0.16 : 0.08;
-                const oldPos = camera.position.clone();
-                
-                if (keys['KeyW']) controls.moveForward(speed);
-                if (keys['KeyS']) controls.moveForward(-speed);
-                if (keys['KeyA']) controls.moveRight(-speed);
-                if (keys['KeyD']) controls.moveRight(speed);
+            if (controls.isLocked) {
+                if (move.w) controls.moveForward(0.15);
+                if (move.s) controls.moveForward(-0.15);
+                if (move.a) controls.moveRight(-0.15);
+                if (move.d) controls.moveRight(0.15);
 
-                // Si la nova posició toca una paret, torna enrere
-                if (checkCollision(camera.position)) {
-                    camera.position.copy(oldPos);
+                // Enviar posició al rival[cite: 2]
+                if (conn && conn.open) {
+                    conn.send({
+                        type: 'move',
+                        x: camera.position.x,
+                        y: camera.position.y - 1,
+                        z: camera.position.z,
+                        ry: camera.rotation.y
+                    });
                 }
             }
             renderer.render(scene, camera);
