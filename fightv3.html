@@ -1,145 +1,95 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>FORCE START 1v1 - GLITCHBOX</title>
-    <!-- Carreguem Three.js i PeerJS directament[cite: 2, 5] -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <title>1v1 WORKING</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <style>
-        body { margin: 0; background: #000; color: #00f3ff; font-family: 'Courier New', monospace; overflow: hidden; }
-        #overlay { position: absolute; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; border: 5px solid #bc13fe; }
-        .panel { background: #111; padding: 30px; border: 2px solid #00f3ff; box-shadow: 0 0 20px #bc13fe; max-width: 500px; }
-        h1 { color: #bc13fe; margin-top: 0; }
-        input { padding: 15px; background: #000; color: #fff; border: 1px solid #bc13fe; margin: 10px 0; width: 80%; font-size: 18px; }
-        button { padding: 15px 30px; background: #bc13fe; color: #fff; border: none; cursor: pointer; font-weight: bold; font-size: 18px; width: 100%; }
-        button:hover { background: #00f3ff; color: #000; }
-        #my-id-display { font-size: 24px; color: #fff; background: #222; padding: 10px; margin: 10px 0; border: 1px dashed #00f3ff; word-break: break-all; }
-        #status-log { color: #ff003c; font-size: 14px; margin-top: 20px; }
+        body { margin: 0; background: #000; color: #00f3ff; font-family: sans-serif; text-align: center; }
+        #setup { position: absolute; width: 100%; top: 20%; z-index: 100; background: rgba(0,0,0,0.9); padding: 20px; }
+        .id-box { font-size: 30px; color: #fff; background: #333; padding: 10px; margin: 20px; border: 2px solid #bc13fe; display: inline-block; }
+        input { padding: 10px; font-size: 18px; }
+        button { padding: 10px 20px; font-size: 18px; background: #bc13fe; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="overlay">
-    <div class="panel">
-        <h1>STRIKE-NET v3</h1>
+    <div id="setup">
+        <h1>PASSA AQUEST CODI AL TEU AMIC:</h1>
+        <div id="display-id" class="id-box">CARREGANT...</div>
         
-        <div>EL TEU ID (Passa'l a l'amic):</div>
-        <div id="my-id-display">CONNECTANT...</div>
+        <br><br>
+        <hr>
+        <br>
         
-        <hr style="border-color: #333; margin: 20px 0;">
-        
-        <div>ID DE L'AMIC:</div>
-        <input type="text" id="friend-id" placeholder="Enganxa el codi aquí...">
-        <button id="btn-join">ENTRAR A LA PARTIDA</button>
-        
-        <div id="status-log">Iniciant protocols de xarxa...</div>
-        <button onclick="location.reload()" style="background:none; color:#666; font-size:12px; margin-top:20px; width:auto; padding:5px;">RECARREGAR PÀGINA SI NO SURT L'ID</button>
+        <h1>O POSA EL CODI DEL TEU AMIC:</h1>
+        <input type="text" id="friend-id" placeholder="Codi de l'amic...">
+        <button id="connect-btn">JUGAR ARA</button>
+        <p id="status">Estat: Esperant PeerJS...</p>
     </div>
-</div>
 
-<script>
-    // --- MOTOR DE XARXA[cite: 2] ---
-    let peer, conn;
-    const statusLog = document.getElementById('status-log');
-    const myIdDisplay = document.getElementById('my-id-display');
-
-    function initNetwork() {
-        // Creem el Peer amb una configuració neta
-        peer = new Peer();
+    <script>
+        // 1. CONFIG XARXA[cite: 2]
+        const peer = new Peer();
+        let conn;
 
         peer.on('open', (id) => {
-            console.log("ID rebut:", id);
-            myIdDisplay.innerText = id;
-            statusLog.innerText = "SISTEMA ONLINE. Esperant amic...";
-            statusLog.style.color = "#39ff14";
+            document.getElementById('display-id').innerText = id;
+            document.getElementById('status').innerText = "Estat: Online. Comparteix el codi.";
         });
 
-        peer.on('error', (err) => {
-            console.error("Error Peer:", err);
-            statusLog.innerText = "ERROR XARXA: " + err.type;
-            if(err.type === 'browser-incompatible') alert("El teu navegador no és compatible amb PeerJS");
-        });
-
-        // Rebre trucada
         peer.on('connection', (c) => {
             conn = c;
-            statusLog.innerText = "CONNEXIÓ REBUDA!";
-            setupGameEvents();
-            setTimeout(launchGame, 1000);
-        });
-    }
-
-    // Botó per unir-se
-    document.getElementById('btn-join').onclick = () => {
-        const rId = document.getElementById('friend-id').value.trim();
-        if(!rId) return alert("Posa l'ID de l'amic!");
-        
-        statusLog.innerText = "CONNECTANT A " + rId + "...";
-        conn = peer.connect(rId);
-        
-        conn.on('open', () => {
-            statusLog.innerText = "CONNECTAT AMB ÈXIT!";
-            setupGameEvents();
-            launchGame();
+            ready();
         });
 
-        conn.on('error', (err) => {
-            statusLog.innerText = "ERROR AL CONNECTAR: " + err;
-        });
-    };
+        document.getElementById('connect-btn').onclick = () => {
+            const fId = document.getElementById('friend-id').value;
+            conn = peer.connect(fId);
+            conn.on('open', () => ready());
+        };
 
-    function setupGameEvents() {
-        conn.on('data', (data) => {
-            if(data.type === 'm') {
-                enemy.position.set(data.x, data.y, data.z);
-            }
-        });
-    }
-
-    function launchGame() {
-        document.getElementById('overlay').style.display = 'none';
-        isStarted = true;
-    }
-
-    // --- MOTOR 3D[cite: 5] ---
-    let isStarted = false;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    scene.add(new THREE.GridHelper(100, 50, 0xbc13fe, 0x222222));
-    const enemy = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({color: 0xff003c}));
-    scene.add(enemy);
-
-    camera.position.set(Math.random()*10, 2, 15);
-
-    const keys = {};
-    window.onkeydown = e => keys[e.code] = true;
-    window.onkeyup = e => keys[e.code] = false;
-
-    function loop() {
-        requestAnimationFrame(loop);
-        if(isStarted) {
-            if(keys['KeyW']) camera.position.z -= 0.15;
-            if(keys['KeyS']) camera.position.z += 0.15;
-            if(keys['KeyA']) camera.position.x -= 0.15;
-            if(keys['KeyD']) camera.position.x += 0.15;
-
-            if(conn && conn.open) {
-                conn.send({ type: 'm', x: camera.position.x, y: camera.position.y-1, z: camera.position.z });
-            }
+        function ready() {
+            document.getElementById('setup').style.display = 'none';
+            initGame();
         }
-        renderer.render(scene, camera);
-    }
 
-    // Inicialització forçada al carregar la finestra
-    window.onload = () => {
-        initNetwork();
-        loop();
-    };
-</script>
+        // 2. JOC 3D SIMPLIFICAT[cite: 5]
+        function initGame() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const grid = new THREE.GridHelper(100, 20, 0xbc13fe, 0x444444);
+            scene.add(grid);
+
+            const rival = new THREE.Mesh(new THREE.BoxGeometry(1,2,1), new THREE.MeshBasicMaterial({color: 0xff0000}));
+            scene.add(rival);
+            camera.position.set(0, 2, 10);
+
+            const move = { w:false, a:false, s:false, d:false };
+            window.onkeydown = (e) => { move[e.key.toLowerCase()] = true; };
+            window.onkeyup = (e) => { move[e.key.toLowerCase()] = false; };
+
+            conn.on('data', (data) => {
+                rival.position.set(data.x, data.y, data.z);
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (move.w) camera.position.z -= 0.1;
+                if (move.s) camera.position.z += 0.1;
+                if (move.a) camera.position.x -= 0.1;
+                if (move.d) camera.position.x += 0.1;
+
+                conn.send({ x: camera.position.x, y: camera.position.y - 1, z: camera.position.z });
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+    </script>
 </body>
 </html>
